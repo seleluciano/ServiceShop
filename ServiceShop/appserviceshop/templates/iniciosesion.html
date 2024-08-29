@@ -1,0 +1,21 @@
+{% extends "padre.html" %} 
+{%load static%} 
+{% block contenidoQueCambia %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<form action="/login" method="post">
+    <label for="username">Nombre de Usuario:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Contraseña:</label>
+    <input type="password" id="password" name="password" required>
+
+    <button type="submit">Iniciar Sesión</button>
+</form>
+
+
+</html>
+
+{% endblock %}
