@@ -1,16 +1,10 @@
-from django.urls import path, include
+from django.urls import path
 from appserviceshop import views
-from .views import RegistrarUsuarioViewSet
-#from django.contrib import admin
-#from rest_framework.routers import DefaultRouter
-
 
 urlpatterns = [
      path('',views.Inicio,name="inicio"),
      path('cerrarsesion/',views.Logout,name="cerrarsesion"),
-     path('appserviceshop/', include('appserviceshop.urls')),
-     path('registrarusuario/', views.Logout,name="registrarusuario")
+     path('registrarusuario/', views.Registrarusuario,name="registrarusuario"),
+     path('iniciosesion/',views.Iniciosesion,name="iniciosesion"),
+     path('nuevo/', views.Crearservicio.as_view(), name="New"),
 ]
-
-#router = routers.DefaultRouter()
-#router.register(r'Usuario', RegistrarUsuarioViewSet)  # Cambia 'usuarios' por el nombre que desees para la URL

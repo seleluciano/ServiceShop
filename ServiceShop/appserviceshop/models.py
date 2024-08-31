@@ -1,13 +1,26 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 
-class Usuario(models.Model):
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128)
-    localidad = models.CharField(max_length=100)
-    provincia = models.CharField(max_length=100)
-    codigo_postal = models.CharField(max_length=10)
+class Servicio(models.Model):
+    CATEGORIA_CHOICES = [
+        ('Tecnologia', 'Tecnología'),
+        ('Educacion', 'Educación'),
+        ('Salud', 'Salud'),
+        ('Alimentacion', 'Alimentación'),
+    ]
+    
+    ZONA_CHOICES = [
+        ('Norte', 'Norte'),
+        ('Sur', 'Sur'),
+        ('Este', 'Este'),
+        ('Oeste', 'Oeste'),
+    ]
 
-    def __str__(self):
-        return self.username
+    name = models.CharField(max_length=100)  # Nombre del servicio
+    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES)  # Categoría
+    precio = models.DecimalField(max_digits=10, decimal_places=2)  # Precio del servicio
+    zona = models.CharField(max_length=20, choices=ZONA_CHOICES)  # Zona
+    descripcion = models.TextField()  # Descripción del servicio
+    disponibilidadhoraria = models.CharField(max_length=100)  # Disponibilidad horaria
+    imagen = models.ImageField(upload_to='services/')  # Imagen del servicio
+    creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
+    actualizacion = models.DateTimeField(auto_now=True)  # Fecha de última actualización
