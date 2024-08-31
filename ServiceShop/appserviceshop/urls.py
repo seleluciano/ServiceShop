@@ -1,5 +1,9 @@
 from django.urls import path
-from appserviceshop import views
+from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
+
 
 urlpatterns = [
      path('',views.Inicio,name="inicio"),
@@ -7,4 +11,6 @@ urlpatterns = [
      path('registrarusuario/', views.Registrarusuario,name="registrarusuario"),
      path('iniciosesion/',views.Iniciosesion,name="iniciosesion"),
      path('nuevo/', views.Crearservicio.as_view(), name="New"),
-]
+
+] 
+

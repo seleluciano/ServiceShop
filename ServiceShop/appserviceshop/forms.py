@@ -1,7 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
 from django.contrib.auth.models import User
-from models import *
+from .models import *
+
 
 class UserRegisterForm(UserCreationForm):
     first_name=forms.CharField(label="Nombre")
@@ -17,13 +18,14 @@ class UserRegisterForm(UserCreationForm):
         # Saca los mensajes de ayuda
         help_texts = {k:"" for k in fields}
     
+
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = Servicio
-        fields = ['name', 'category', 'price', 'zone', 'description', 'availability', 'image']
+        fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
         widgets = {
-            'category': forms.Select(attrs={'class': 'form-control'}),
-            'zone': forms.Select(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'availability': forms.TextInput(attrs={'class': 'form-control'}),
+            'categoria': forms.Select(attrs={'class': 'form-control'}),
+            'zona': forms.Select(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'disponibilidadhoraria': forms.TextInput(attrs={'class': 'form-control'}),
         }

@@ -8,10 +8,12 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
 #from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Servicio
 
 
 def Inicio(request):
-    return render(request, "index.html")
+    servicios = Servicio.objects.all()  # Obtiene todos los servicios
+    return render(request, 'index.html', {'servicios': servicios})
 
 def Iniciosesion(request):
     if request.method == 'POST':
@@ -40,7 +42,7 @@ def Registrarusuario(request):
     else:
         form = UserRegisterForm()
 
-    return render(request, "registrousuario.html", {'form': form})
+    return render(request, "registrarusuario.html", {'form': form})
 
 @login_required
 def Logout(request):

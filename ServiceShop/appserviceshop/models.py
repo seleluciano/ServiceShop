@@ -21,6 +21,10 @@ class Servicio(models.Model):
     zona = models.CharField(max_length=20, choices=ZONA_CHOICES)  # Zona
     descripcion = models.TextField()  # Descripción del servicio
     disponibilidadhoraria = models.CharField(max_length=100)  # Disponibilidad horaria
-    imagen = models.ImageField(upload_to='services/')  # Imagen del servicio
+    imagen = models.ImageField(upload_to='imgservices/')
     creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
     actualizacion = models.DateTimeField(auto_now=True)  # Fecha de última actualización
+
+    def delete(self, using=None, keep_parents=False):
+        self.imagen.storage.delete(self.imagen.name)
+        super().delete()
