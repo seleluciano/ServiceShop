@@ -13,27 +13,41 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 def Iniciosesion(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
-
         if form.is_valid():
-
             usuario = form.cleaned_data.get('username')
             contrasenia = form.cleaned_data.get('password')
-
             user = authenticate(username=usuario, password=contrasenia)
-
             if user is not None:
                 login(request, user)
-
                 return render(request, "index.html", {"mensaje": f"Bienvenido {usuario}"})
             else:
                 return render(request, "iniciosesion.html", {"mensaje": "Datos incorrectos"})
-
         else:
-
             return render(request, "iniciosesion.html", {"mensaje": "Formulario erroneo"})
     form = AuthenticationForm()
     return render(request, "iniciosesion.html", {'form': form})
 
+@login_required
+def Logout(request):
+    return render(request, "cerrarsesion.html")
+
+
+def Registrousuario(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            usuario = form.cleaned_data.get('username')
+            contrasenia = form.cleaned_data.get('password')
+            user = authenticate(username=usuario, password=contrasenia)
+            if user is not None:
+                login(request, user)
+                return render(request, "index.html", {"mensaje": f"Bienvenido {usuario}"})
+            else:
+                return render(request, "Usuario Registrado.html", {"mensaje": "Datos incorrectos"})
+        else:
+            return render(request, "iniciosesion.html", {"mensaje": "Formulario erroneo"})
+    form = AuthenticationForm()
+    return render(request, "iniciosesion.html", {'form': form})
 
 @login_required
 def Logout(request):

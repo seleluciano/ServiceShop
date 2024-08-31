@@ -1,0 +1,35 @@
+
+{% extends "padre.html" %}
+{% load static %}
+{% block contenidoQueCambia %}
+<!DOCTYPE html>
+<html lang="en">
+
+<body id="page-top">
+    <section class="page-section">
+        <div class="container">
+            <!-- Portfolio Section Heading-->
+            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">REGISTRAR SESION</h2>
+            <!-- Icon Divider-->
+            <div class="divider-custom">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+        <div class="container">
+            <form action="/Appreciclaje/registrarusuario/" method="POST" class=formulario>
+                {% csrf_token %}
+                {{ form.as_p }}
+               <button type="submit">Enviar</button>
+               <p>¿Ya estas registrado? Inicie sesion <a href="{% url 'iniciosesion' %}">aquí</a></p>
+               <p>¿Sos administrador? Ingresa <a href="{% url 'admin:index' %}">aquí</a></p>
+               </form>
+               {% if mensaje %}
+              <p class="mensaje">{{ mensaje }}</p>
+              {% endif %}
+        </div>
+    </section>
+</body>
+</html>
+
+{% endblock %}
