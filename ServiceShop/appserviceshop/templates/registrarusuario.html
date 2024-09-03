@@ -1,35 +1,59 @@
-
 {% extends "padre.html" %}
 {% load static %}
 {% block contenidoQueCambia %}
-<!DOCTYPE html>
-<html lang="en">
 
-<body id="page-top">
-    <section class="page-section">
-        <div class="container">
-            <!-- Portfolio Section Heading-->
-            <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">REGISTRAR SESION</h2>
-            <!-- Icon Divider-->
-            <div class="divider-custom">
-                <div class="divider-custom-line"></div>
-                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
-                <div class="divider-custom-line"></div>
-            </div>
-        <div class="container">
-            <form action="/appserviceshop/registrousuario/" method="POST" class=formulario>
+<div class="container mt-2 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <h2 class="text-center mb-4">Registrar Usuario</h2>
+            <form action="/appserviceshop/registrousuario/" method="POST" class="border p-4 rounded shadow-sm bg-light">
                 {% csrf_token %}
-                {{ form.as_p }}
-               <button type="submit">Enviar</button>
-               <p>¿Ya estas registrado? Inicie sesion <a href="{% url 'iniciosesion' %}">aquí</a></p>
-               <p>¿Sos administrador? Ingresa <a href="{% url 'admin:index' %}">aquí</a></p>
-               </form>
-               {% if mensaje %}
-              <p class="mensaje">{{ mensaje }}</p>
-              {% endif %}
+                
+                <div class="mb-3">
+                    <label for="{{ form.first_name.id_for_label }}" class="form-label"><strong>Nombre</strong></label>
+                    {{ form.first_name }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.last_name.id_for_label }}" class="form-label"><strong>Apellido</strong></label>
+                    {{ form.last_name }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label"><strong>Usuario</strong></label>
+                    {{ form.username }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label"><strong>Email</strong></label>
+                    {{ form.email }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label"><strong>Contraseña</strong></label>
+                    {{ form.password1 }}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label"><strong>Repetir Contraseña</strong></label>
+                    {{ form.password2 }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100">Enviar</button>
+            </form>
+
+            <p class="text-center mt-4">
+                ¿Ya estás registrado? Inicia sesión <a href="{% url 'iniciosesion' %}" class="link-primary">aquí</a>
+            </p>
+            <p class="text-center">
+                ¿Sos administrador? Ingresa <a href="{% url 'admin:index' %}" class="link-primary">aquí</a>
+            </p>
+
+            {% if mensaje %}
+                <p class="text-center text-danger mt-3">{{ mensaje }}</p>
+            {% endif %}
         </div>
-    </section>
-</body>
-</html>
+    </div>
+</div>
 
 {% endblock %}

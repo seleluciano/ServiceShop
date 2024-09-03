@@ -1,21 +1,32 @@
-{% extends "padre.html" %} 
-{%load static%} 
+{% extends "padre.html" %}
+{% load static %}
 {% block contenidoQueCambia %}
 
-<!DOCTYPE html>
-<html lang="es">
+<!-- Ajusta el margen superior del contenedor para dar más espacio -->
+<div class="container mt-2 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4"> <!-- Ajusta el ancho del formulario aquí -->
+            <h2 class="text-center mb-4">Iniciar Sesión</h2>
+            <form action="/login" method="post" class="border p-4 rounded shadow-sm bg-light">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="username" class="form-label"><strong>Nombre de Usuario:</strong></label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
 
-<form action="/login" method="post">
-    <label for="username">Nombre de Usuario:</label>
-    <input type="text" id="username" name="username" required>
+                <div class="mb-3">
+                    <label for="password" class="form-label"><strong>Contraseña:</strong></label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
 
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" name="password" required>
+                <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+            </form>
 
-    <button type="submit">Iniciar Sesión</button>
-</form>
-
-
-</html>
+            <p class="text-center mt-4">
+                ¿Eres administrador? Ingresa <a href="{% url 'admin:index' %}" class="link-primary">aquí</a>
+            </p>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
