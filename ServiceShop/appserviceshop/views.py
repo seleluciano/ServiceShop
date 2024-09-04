@@ -55,5 +55,5 @@ def Logout(request):
 class Crearservicio(LoginRequiredMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
-    success_url = reverse_lazy('inicio')  # Cambiado a 'inicio'
+    success_url = reverse_lazy('inicio') 
     template_name = "crearservicio.html"

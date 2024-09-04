@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4"> <!-- Ajusta el ancho del formulario aquí -->
             <h2 class="text-center mb-4">Iniciar Sesión</h2>
-            <form action="/login" method="post" class="border p-4 rounded shadow-sm bg-light">
+            <form action="{% url 'iniciosesion' %}" method="post" class="border p-4 rounded shadow-sm bg-light">
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="username" class="form-label"><strong>Nombre de Usuario:</strong></label>
@@ -21,12 +21,13 @@
 
                 <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
             </form>
-
+            <p class="mt-3 text-center">¿No estás registrado? Regístrate <a href="{% url 'registrarusuario' %}">aquí</a></p>
             <p class="text-center mt-4">
                 ¿Eres administrador? Ingresa <a href="{% url 'admin:index' %}" class="link-primary">aquí</a>
             </p>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
