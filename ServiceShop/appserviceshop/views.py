@@ -13,7 +13,7 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 
 
-
+@login_required
 def Inicio(request):
     servicios = Servicio.objects.all()  # Obtiene todos los servicios
     return render(request, 'index.html', {'servicios': servicios})
