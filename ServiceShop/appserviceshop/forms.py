@@ -1,23 +1,25 @@
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from django.contrib.auth.models import User
 from .models import *
 
 
 class UserRegisterForm(UserCreationForm):
-    first_name=forms.CharField(label="Nombre")
-    last_name=forms.CharField(label="Apellido")
-    username=forms.CharField(label="Usuario")
-    email = forms.EmailField()
-    password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
-    password2 = forms.CharField(label="Repetir contraseña", widget=forms.PasswordInput)
- 
+    first_name = forms.CharField(label="Nombre", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu nombre'}))
+    last_name = forms.CharField(label="Apellido", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu apellido'}))
+    username = forms.CharField(label="Usuario", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu usuario'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu email'}))
+    password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu contraseña'}))
+    password2 = forms.CharField(label="Repetir contraseña", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Repite tu contraseña'}))
+
     class Meta:
         model = User
-        fields = ['first_name','last_name','username', 'email', 'password1', 'password2']
-        # Saca los mensajes de ayuda
-        help_texts = {k:"" for k in fields}
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+        help_texts = {k: "" for k in fields}
     
+
+
 
 class ServiceForm(forms.ModelForm):
     class Meta:
