@@ -11,6 +11,7 @@ urlpatterns = [
      path('registrarusuario/', views.Registrarusuario,name="registrarusuario"),
      path('iniciosesion/',views.Iniciosesion,name="iniciosesion"),
      path('nuevo/', views.Crearservicio.as_view(), name="New"),
+     path('carrito/',views.Carrito,name="carrito"),
 
 ] 
 

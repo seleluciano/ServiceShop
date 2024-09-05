@@ -18,6 +18,10 @@ def Inicio(request):
     servicios = Servicio.objects.all()  # Obtiene todos los servicios
     return render(request, 'index.html', {'servicios': servicios})
 
+@login_required
+def Carrito(request):
+    return render(request, 'carrito.html')
+
 def Iniciosesion(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
