@@ -48,17 +48,27 @@
                         <i class="bi-search"></i>
                     </button>
                 </form>
-                <form class="d-flex">
-                    <button class="btn btn-outline-light me-2" type="submit">
+                <form class="d-flex justify-content-between">
+                    <!-- Carrito Button -->
+                    <button class="btn btn-outline-light btn-smaller me-2" type="submit">
                         <i class="bi-cart-fill me-1"></i>
                         Carrito
-                        <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                        <span class="badge bg-dark text-white ms-1 rounded-pill badge-smaller">0</span>
                     </button>
-                    <!-- User dropdown button -->
-                    <button class="btn btn-outline-light" type="button" data-bs-toggle="modal" data-bs-target="#userModal">
-                        Usuario
-                        <i class="bi-person"></i>
-                    </button>
+            
+                    <!-- User Dropdown Button -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Usuario
+                            <i class="bi-person"></i>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#">Perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'New' %}">Crear Servicio</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'cerrarsesion' %}">Cerrar sesión</a></li>
+                        </ul>
+                    </div>
                 </form>
             </div>
         </div>

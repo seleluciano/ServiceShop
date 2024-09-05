@@ -3,11 +3,13 @@
 {% block contenidoQueCambia %}
 {% load widget_tweaks %}
 
+<div class="container mt-2 pt-5">
+<div class="col-md-6 col-lg-4"> <!-- Ajusta el ancho del formulario aquí -->
+    <h2 class="text-center mb-4 mt-3">CREAR SERVICIO</h2>
 
-<div class="container mt-4">
-    <h2 class="text-center mb-4">Crear Nuevo Servicio</h2>
     <form method="post" enctype="multipart/form-data" class="formulario">
         {% csrf_token %}
+        
         <div class="mb-3">
             <label for="{{ form.name.id_for_label }}" class="form-label">Nombre del Servicio</label>
             {{ form.name|add_class:"form-control" }}
@@ -46,5 +48,5 @@
         <button type="submit" class="btn btn-primary">Crear Servicio</button>
     </form>
 </div>
-
+</div>
 {% endblock %}
