@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Servicio
+from .models import *
 
 # Register your models here.
 
@@ -9,3 +9,5 @@ class ServicioAdmin(admin.ModelAdmin):
     search_fields = ('name', 'categoria', 'zona')
     list_filter = ('categoria', 'zona')
     fields = ('name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen')
+
+admin.site.register(Avatar)

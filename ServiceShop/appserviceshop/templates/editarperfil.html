@@ -1,0 +1,36 @@
+{% extends "padre.html" %}
+{% load static %}
+{% block contenidoQueCambia %}
+
+<!-- Ajusta el margen superior del contenedor para dar más espacio -->
+<div class="container mt-4 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4 col-lg-4"> <!-- Ajusta el ancho del formulario aquí -->
+            <h2 class="text-center mb-4">EDITAR PERFIL</h2> 
+            <a href="{% url 'cambiaravatar' %}">
+                {% if avatar and avatar.imagen %}
+                    <img src="{{ avatar.imagen.url }}" alt="Avatar del usuario" class="avatar-small">
+                {% else %}
+                    <img src="{% static 'img/predeterminado.jpg' %}" alt="Avatar del usuario" class="avatar-small">
+                {% endif %}
+                Cambiar Avatar
+            </a>
+             
+            <form action="{% url 'editarperfil' %}" method="POST">{% csrf_token %}
+               
+                <table>
+        
+                    {{ miFormulario.as_table }}
+                    <br></br>
+        
+                </table>
+        
+                <input type="submit", value="Guardar">
+        
+            </form>  
+                    
+        </div>
+    </div>
+</div>
+
+{% endblock %}

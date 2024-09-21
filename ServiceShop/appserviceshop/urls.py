@@ -12,6 +12,8 @@ urlpatterns = [
      path('iniciosesion/',views.Iniciosesion,name="iniciosesion"),
      path('nuevo/', views.Crearservicio.as_view(), name="New"),
      path('carrito/',views.Carrito,name="carrito"),
-
+     path('editarperfil/', views.Editarperfil, name="editarperfil"),
+     path('cambiaravatar/',views.Cambiaravatar,name="cambiaravatar"),
+     
 ] 
 

@@ -2,21 +2,27 @@ from django.shortcuts import render, redirect
 from appserviceshop.models import *
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm,UserEditForm,AvatarFormulario
 from django.contrib.auth.decorators import login_required
 #from django.views.generic import ListView
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
 #from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Servicio
+from .models import Servicio,Avatar
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
+from django.contrib.auth.models import User
+from django.contrib.auth import update_session_auth_hash
 
 
 @login_required
 def Inicio(request):
     servicios = Servicio.objects.all()  # Obtiene todos los servicios
     return render(request, 'index.html', {'servicios': servicios})
+
+@login_required
+def Logout(request):
+    return render(request, 'cerrarsesion.html')
 
 @login_required
 def Carrito(request):
@@ -52,9 +58,56 @@ def Registrarusuario(request):
 
     return render(request, "registrarusuario.html", {'form': form, 'hide_navbar': True})
 
+@login_required 
+def Editarperfil(request): 
+    usuario = request.user 
+
+    if request.method == 'POST': 
+        miFormulario = UserEditForm(request.POST, instance=usuario)
+        if miFormulario.is_valid(): 
+            informacion = miFormulario.cleaned_data 
+
+            nuevo_username = informacion['username']
+            if nuevo_username != usuario.username:
+                if User.objects.filter(username=nuevo_username).exists():
+                    miFormulario.add_error('username', "El nombre de usuario ya está en uso.")
+                else:
+                    usuario.username = nuevo_username
+            
+            usuario.first_name = informacion['first_name']
+            usuario.last_name = informacion['last_name']
+            usuario.email = informacion['email']
+
+            # Manejo de contraseña
+            if informacion.get('password1') and informacion['password1'] == informacion['password2']:
+                usuario.set_password(informacion['password1'])  # Cambia la contraseña
+                update_session_auth_hash(request, usuario)  # Mantiene la sesión activa
+
+            usuario.save() 
+            return redirect("index")  # Redirigir a otra página después de guardar
+    else: 
+        miFormulario = UserEditForm(instance=usuario)  # Carga los datos actuales del usuario
+
+    return render(request, "editarperfil.html", {"miFormulario": miFormulario, "usuario": usuario})  
+ 
+
 @login_required
-def Logout(request):
-    return render(request, "cerrarsesion.html")
+def Cambiaravatar(request):
+    usuario = request.user
+    try:
+        avatar = usuario.avatar
+    except Avatar.DoesNotExist:
+        avatar = None
+
+    if request.method == 'POST':
+        miFormulario = AvatarFormulario(request.POST, request.FILES, instance=avatar)  # Asegúrate de incluir request.FILES
+        if miFormulario.is_valid():
+            miFormulario.save()
+            return render(request, "index.html")
+    else:
+        miFormulario = AvatarFormulario(instance=avatar)
+
+    return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
 class Crearservicio(LoginRequiredMixin, CreateView):
     model = Servicio

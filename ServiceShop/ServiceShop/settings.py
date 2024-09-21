@@ -27,6 +27,9 @@ SECRET_KEY = 'django-insecure-1*m+s!xviz^laa$_di79ac_tc!+c27rm70nj6nkk4%(8+*qw!t
 DEBUG = True
 
 ALLOWED_HOSTS = []
+LANGUAGE_CODE = 'es'  # Español
+USE_I18N = True
+USE_L10N = True
 
 
 # Application definition
@@ -65,6 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                 'appserviceshop.context_processors.avatar_processor',
             ],
         },
     },

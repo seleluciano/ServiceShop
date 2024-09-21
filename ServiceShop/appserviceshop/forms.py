@@ -6,8 +6,8 @@ from .models import *
 
 
 class UserRegisterForm(UserCreationForm):
-    first_name = forms.CharField(label="Nombre", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu nombre'}))
-    last_name = forms.CharField(label="Apellido", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu apellido'}))
+    first_name = forms.CharField()
+    last_name = forms.CharField()
     username = forms.CharField(label="Usuario", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu usuario'}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu email'}))
     password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu contraseña'}))
@@ -18,8 +18,31 @@ class UserRegisterForm(UserCreationForm):
         fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
         help_texts = {k: "" for k in fields}
     
+class UserEditForm(forms.ModelForm):
+    password1 = forms.CharField(label='Contraseña', widget=forms.PasswordInput, required=False)
+    password2 = forms.CharField(label='Repetir contraseña', widget=forms.PasswordInput, required=False)
 
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+        labels = {
+            'first_name': 'Nombre',
+            'last_name': 'Apellido',
+            'username': 'Nombre de usuario',
+            'email': 'Correo electrónico',
+        }
+        help_texts = {k: "" for k in fields}
 
+class AvatarFormulario(forms.ModelForm):
+    class Meta:
+        model = Avatar
+        fields = ['imagen']
+        labels = {
+            'imagen': 'Imagen de perfil'
+        }
+        widgets = {
+            'imagen': forms.FileInput(attrs={'class': 'form-control'})
+        }
 
 class ServiceForm(forms.ModelForm):
     class Meta:

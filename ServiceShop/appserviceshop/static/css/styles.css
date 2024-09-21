@@ -10824,3 +10824,11 @@ textarea.form-control-lg {
     display: none !important;
   }
 }
+
+.avatar-small {
+  width: 30px;   /* Ancho de la imagen más pequeño */
+  height: 30px;  /* Alto de la imagen más pequeño */
+  border-radius: 50%;  /* Hace la imagen circular */
+}
+
+
