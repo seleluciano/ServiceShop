@@ -57,7 +57,6 @@ def Registrarusuario(request):
         form = UserRegisterForm()
 
     return render(request, "registrarusuario.html", {'form': form, 'hide_navbar': True})
-
 @login_required 
 def Editarperfil(request): 
     usuario = request.user 
@@ -84,12 +83,11 @@ def Editarperfil(request):
                 update_session_auth_hash(request, usuario)  # Mantiene la sesión activa
 
             usuario.save() 
-            return redirect("index")  # Redirigir a otra página después de guardar
+            return render(request, 'index.html') # Redirigir a otra página después de guardar
     else: 
         miFormulario = UserEditForm(instance=usuario)  # Carga los datos actuales del usuario
 
     return render(request, "editarperfil.html", {"miFormulario": miFormulario, "usuario": usuario})  
- 
 
 @login_required
 def Cambiaravatar(request):
