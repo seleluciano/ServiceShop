@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Compras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .filters {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .filters input, .filters select {
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .purchase-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .purchase-item {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: flex-start;
+        }
+        .purchase-item img {
+            width: 150px;
+            height: 150px;
+            margin-right: 20px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .purchase-details {
+            flex-grow: 1;
+        }
+        .purchase-details h3 {
+            margin: 0;
+            color: #333;
+        }
+        .purchase-details p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .status {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .status.completada {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .status.cancelada {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .status.en-espera {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+        .details-btn {
+            background-color: #007bff;
+        }
+        .download-btn {
+            background-color: #28a745;
+        }
+        .no-purchases {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 50px;
+        }
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin: 30px 0;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mis Compras</h1>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <input type="date" id="filter-date" placeholder="Filtrar por fecha">
+            <select id="filter-status">
+                <option value="">Filtrar por estado</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+                <option value="en-espera">En espera</option>
+            </select>
+            <input type="text" id="filter-service" placeholder="Filtrar por tipo de servicio">
+        </div>
+
+        <!-- Lista de compras -->
+        <div class="purchase-list" id="purchase-list">
+            <!-- Aquí se insertarán las compras dinámicamente -->
+        </div>
+
+        <!-- Si no hay compras -->
+        <div id="no-purchases" class="no-purchases" style="display:none;">
+            No tienes compras en tu historial.
+        </div>
+
+        <!-- Botón para regresar a la página principal -->
+        <a href="/servicios" class="back-btn">Volver a la Página de Servicios</a>
+    </div>
+
+    <script>
+        // Ejemplo de compras (puede ser reemplazado por datos dinámicos desde el servidor)
+        const compras = [
+            {
+                id: 1,
+                servicio: 'Diseño Web',
+                imagen: 'https://via.placeholder.com/150',
+                precio: 500,
+                fecha: '2024-09-30',
+                estado: 'completada',
+                descripcion: 'Diseño de una página web completa para empresas.',
+            },
+            {
+                id: 2,
+                servicio: 'SEO',
+                imagen: 'https://via.placeholder.com/150',
+                precio: 300,
+                fecha: '2024-10-01',
+                estado: 'en-espera',
+                descripcion: 'Optimización SEO para mejorar el posicionamiento en motores de búsqueda.',
+            }
+        ];
+
+        const purchaseList = document.getElementById('purchase-list');
+        const noPurchasesMessage = document.getElementById('no-purchases');
+
+        function renderPurchases(compras) {
+            if (compras.length === 0) {
+                noPurchasesMessage.style.display = 'block';
+                purchaseList.style.display = 'none';
+            } else {
+                noPurchasesMessage.style.display = 'none';
+                purchaseList.style.display = 'grid';
+
+                // Renderiza cada compra en la lista
+                compras.forEach(compra => {
+                    const purchaseItem = document.createElement('div');
+                    purchaseItem.classList.add('purchase-item');
+                    purchaseItem.innerHTML = `
+                        <img src="${compra.imagen}" alt="${compra.servicio}">
+                        <div class="purchase-details">
+                            <h3>${compra.servicio}</h3>
+                            <p><strong>Precio:</strong> $${compra.precio}</p>
+                            <p><strong>Fecha:</strong> ${compra.fecha}</p>
+                            <p><strong>Descripción:</strong> ${compra.descripcion}</p>
+                            <p><strong>Estado:</strong> <span class="status ${compra.estado.toLowerCase()}">${compra.estado}</span></p>
+                            <div class="actions">
+                                <button class="details-btn">Ver Detalles</button>
+                                <button class="download-btn">Descargar Comprobante</button>
+                            </div>
+                        </div>
+                    `;
+                    purchaseList.appendChild(purchaseItem);
+                });
+            }
+        }
+
+        // Llama a la función de renderizado al cargar la página
+        renderPurchases(compras);
+
+        // Filtrado básico por servicio, estado o fecha
+        document.getElementById('filter-service').addEventListener('input', function() {
+            const filtered = compras.filter(compra => compra.servicio.toLowerCase().includes(this.value.toLowerCase()));
+            purchaseList.innerHTML = '';
+            renderPurchases(filtered);
+        });
+
+        document.getElementById('filter-status').addEventListener('change', function() {
+            const filtered = compras.filter(compra => compra.estado === this.value || this.value === '');
+            purchaseList.innerHTML = '';
+            renderPurchases(filtered);
+        });
+
+        document.getElementById('filter-date').addEventListener('change', function() {
+            const filtered = compras.filter(compra => compra.fecha === this.value);
+            purchaseList.innerHTML = '';
+            renderPurchases(filtered);
+        });
+    </script>
+</body>
+</html>
