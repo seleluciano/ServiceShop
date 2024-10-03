@@ -1,0 +1,74 @@
+{% extends "padre.html" %}
+{% load static %}
+{% block contenidoQueCambia %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ servicio.name }}</title>
+</head>
+
+<body>
+    <!-- Full-width section for the service-->
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 mb-5">
+                    <div class="card h-100">
+                        <!-- Product image (adjust size for a smaller view) -->
+                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" style="max-height: 300px; object-fit: contain; width: 100%;" />
+                        
+                        <!-- Product details -->
+                        <div class="card-body p-4">
+                            <div>
+                                <!-- Product name -->
+                                <h5 class="text-center" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">
+                                    {{ servicio.name }}
+                                </h5>
+
+                                <!-- Separator line -->
+                                <hr>
+
+                                <!-- Product description -->
+                                <p class="text-left" style="font-size: 1rem; color: #6c757d; line-height: 1.6;">
+                                    {{ servicio.descripcion }}
+                                </p>
+
+                                <!-- Separator line -->
+                                <hr>
+
+                                <!-- Product category, zone, availability and price-->
+                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
+                                    <strong>Categoría:</strong> {{ servicio.categoria }}
+                                </p>
+                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
+                                    <strong>Zona:</strong> {{ servicio.zona }}
+                                </p>
+                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
+                                    <strong>Disponibilidad:</strong> {{ servicio.disponibilidadhoraria }}
+                                </p>
+                                <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">
+                                    Precio: ${{ servicio.precio }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Product actions-->
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <div class="text-center">
+                                <a class="btn btn-outline-dark mt-auto" href="{% url 'carrito' %}">Añadir al carrito</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>
+
+{% endblock %}

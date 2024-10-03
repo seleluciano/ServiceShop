@@ -14,6 +14,8 @@ urlpatterns = [
      path('carrito/',views.Carrito,name="carrito"),
      path('editarperfil/', views.Editarperfil, name="editarperfil"),
      path('cambiaravatar/',views.Cambiaravatar,name="cambiaravatar"),
+     path('miscompras/',views.Compras,name="miscompras"),
+    path('<int:pk>', views.Detalleservicio.as_view(), name="Detail"),
      
 ] 
 

@@ -27,10 +27,6 @@
                                 <h5 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">{{ servicio.name }}</h5>
                                 <!-- Separator line -->
                                 <hr style="margin-bottom: 0.75rem;">
-                                <!-- Product description-->
-                                <p style="font-size: 0.875rem; color: #6c757d; margin-bottom: 0.75rem; text-align: left; line-height: 1.5;">
-                                    {{ servicio.descripcion }}
-                                </p>
                                 <!-- Separator line -->
                                 <hr style="margin-bottom: 0.75rem;">
                                 <!-- Product category-->
@@ -41,10 +37,6 @@
                                 <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
                                     Zona: <span style="font-weight: 500;">{{ servicio.zona }}</span>
                                 </p>
-                                <!-- Product availability-->
-                                <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                    Disponibilidad: <span style="font-weight: 500;">{{ servicio.disponibilidadhoraria }}</span>
-                                </p>
                                 <!-- Product price-->
                                 <p style="font-size: 1.125rem; font-weight: 700; color: #212529; text-align: center;">
                                     Precio: ${{ servicio.precio }}
@@ -54,7 +46,9 @@
                         <!-- Product actions-->
                         <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                             <div class="text-center">
-                                <a class="btn btn-outline-dark mt-auto" href="#">Añadir al carrito</a>
+                                <a class="btn btn-outline-dark mt-auto" href="{% url 'carrito' %}">Añadir al carrito</a>
+                                <br></br>
+                                <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' servicio.id %}">Ver mas</a>
                             </div>
                         </div>
                     </div>

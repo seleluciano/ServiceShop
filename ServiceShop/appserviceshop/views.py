@@ -6,7 +6,7 @@ from .forms import UserRegisterForm,UserEditForm,AvatarFormulario
 from django.contrib.auth.decorators import login_required
 #from django.views.generic import ListView
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
-#from django.views.generic.detail import DetailView
+from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Servicio,Avatar
 from django.urls import reverse_lazy
@@ -17,8 +17,7 @@ from django.contrib.auth import update_session_auth_hash
 
 @login_required
 def Inicio(request):
-    servicios = Servicio.objects.all()  # Obtiene todos los servicios
-    return render(request, 'index.html', {'servicios': servicios})
+    return render(request, 'index.html')
 
 @login_required
 def Logout(request):
@@ -106,6 +105,14 @@ def Cambiaravatar(request):
         miFormulario = AvatarFormulario(instance=avatar)
 
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
+
+@login_required
+def Compras(request):
+    return render(request, 'miscompras.html')
+
+class Detalleservicio(LoginRequiredMixin,DetailView):
+   model=Servicio
+   template_name="servicio_detalle.html"
 
 class Crearservicio(LoginRequiredMixin, CreateView):
     model = Servicio
