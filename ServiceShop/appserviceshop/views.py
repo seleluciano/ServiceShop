@@ -13,19 +13,52 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.models import User
 from django.contrib.auth import update_session_auth_hash
+from django.core.paginator import Paginator
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from .models import Producto, Carrito, CarritoProducto, Servicio
+
+
+@login_required
+def añadir_al_carrito(request, servicio_id):
+    servicio = Servicio.objects.get(id=servicio_id)
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+
+    # Intenta obtener el objeto CarritoProducto existente
+    carritoproducto, created = CarritoProducto.objects.get_or_create(carrito=carrito, servicio=servicio)
+    
+    # Si ya existe, incrementa la cantidad
+    if not created:
+        carritoproducto.cantidad += 1
+        carritoproducto.save()
+
+    return redirect('carrito')  # Redirige a la vista del carrito después de añadir
+
+@login_required
+def Carrito_V(request):
+    carrito = Carrito.objects.get(usuario=request.user)
+    servicios_en_carrito = carrito.carritoproducto_set.all()  # Obtiene todos los servicios en el carrito
+    
+    context = {
+        'servicios_en_carrito': servicios_en_carrito,
+    }
+    return render(request, 'carrito.html', context)
 
 
 @login_required
 def Inicio(request):
+    servicios = Servicio.objects.all()  # Ejemplo, ajusta según tu modelo
     return render(request, 'index.html')
 
 @login_required
 def Logout(request):
     return render(request, 'cerrarsesion.html')
 
-@login_required
-def Carrito(request):
-    return render(request, 'carrito.html')
+#@login_required
+#def Carrito(request):
+    #return render(request, 'carrito.html')
 
 def Iniciosesion(request):
     if request.method == 'POST':
@@ -56,6 +89,7 @@ def Registrarusuario(request):
         form = UserRegisterForm()
 
     return render(request, "registrarusuario.html", {'form': form, 'hide_navbar': True})
+
 @login_required 
 def Editarperfil(request): 
     usuario = request.user 
@@ -97,18 +131,38 @@ def Cambiaravatar(request):
         avatar = None
 
     if request.method == 'POST':
-        miFormulario = AvatarFormulario(request.POST, request.FILES, instance=avatar)  # Asegúrate de incluir request.FILES
+        miFormulario = AvatarFormulario(request.POST, request.FILES, instance=avatar)
         if miFormulario.is_valid():
-            miFormulario.save()
+            nuevo_avatar = miFormulario.save(commit=False)  # No guardes todavía
+            nuevo_avatar.user = usuario  # Asigna el usuario actual
+            nuevo_avatar.save()  # Ahora guarda
+            messages.success(request, "¡Avatar cambiado exitosamente!")  # Mensaje de éxito
+           # return render(request, "inicio")
             return render(request, "index.html")
+
+            #return redirect("inicio")  # Cambia 'index' por la URL a donde quieras redirigir
+            
     else:
         miFormulario = AvatarFormulario(instance=avatar)
 
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
+
 @login_required
 def Compras(request):
     return render(request, 'miscompras.html')
+
+@login_required
+def Venta_V(request):
+    ventas_list = Ventas_M.objects.filter(vendedor=request.user)  # Consulta las ventas del usuario actual
+    paginator = Paginator(ventas_list, 5)  # Paginación de 5 ventas por página
+
+    page_number = request.GET.get('page')  # Obtener número de página
+    page_obj = paginator.get_page(page_number)  # Obtener la página actual
+
+    # Renderiza la plantilla con el contexto de la paginación
+    return render(request, 'misventas.html', {'page_obj': page_obj})
+    
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio

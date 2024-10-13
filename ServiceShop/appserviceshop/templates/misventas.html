@@ -1,0 +1,62 @@
+{% extends "padre.html" %}
+{% load static %}
+{% block contenidoQueCambia %}
+
+<div class="container mt-2 pt-5">
+    
+    <h1 style="margin-top: 25px;">Mis Ventas</h1>
+
+    <!-- Filtros -->
+    <div class="filters">
+        <input type="date" id="filter-date" placeholder="Filtrar por fecha">
+        <select id="filter-status">
+            <option value="">Filtrar por estado</option>
+            <option value="completada">Completada</option>
+            <option value="cancelada">Cancelada</option>
+        </select>
+        <input type="text" id="filter-service" placeholder="Filtrar por tipo de servicio">
+    </div>
+
+    <!-- Lista de ventas -->
+    <div class="purchase-list" id="purchase-list">
+        {% for venta in page_obj %}
+        <div class="purchase-item">
+            <img src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
+            <div class="purchase-details">
+                <h3>{{ venta.servicio.nombre }}</h3>
+                <p><strong>Precio:</strong> ${{ venta.precio }}</p>
+                <p><strong>Fecha:</strong> {{ venta.fecha_venta|date:"Y-m-d" }}</p>
+                <p><strong>Estado:</strong> {{ venta.estado }}</p>
+                <div class="actions">
+                    <button class="details-btn">Ver Detalles</button>
+                    <button class="download-btn">Descargar Comprobante</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div id="no-purchases" class="no-purchases">
+            No Existen Ventas en el Historial.
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination">
+        <span>
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+        </span>
+        <div class="pagination-buttons">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botón para regresar a la página principal -->
+    <a href="{% url 'iniciosesion' %}" class="back-btn">Volver a la Página de Servicios</a>
+</div>
+
+{% endblock %}

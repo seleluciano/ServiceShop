@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="es"> <!-- Cambia 'en' a 'es' para español -->
 
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -21,6 +22,7 @@
     {% if not hide_navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container px-4 px-lg-5">
+            <!-- Logo y botón de inicio -->
             <a class="navbar-brand" href="{% url 'inicio' %}">
                 <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 40px; margin-right: 10px;">
                 ServiceShop
@@ -30,11 +32,23 @@
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <!-- Botón de inicio -->
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'inicio' %}">Inicio</a>
                     </li>
+                    <!-- Separación entre el botón de inicio y la barra de búsqueda -->
+                    <li class="nav-item">
+                        <form class="d-flex mx-3" style="max-width: 400px;">
+                            <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="bi-search"></i>
+                            </button>
+                        </form>
+                    </li>
+                    <!-- Botón de filtro -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">Filtrar</a>
@@ -48,14 +62,9 @@
                         </ul>
                     </li>
                 </ul>
-                <!-- Search Bar -->
-                <form class="d-flex mx-3 flex-grow-1" style="max-width: 400px;">
-                    <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">
-                        <i class="bi-search"></i>
-                    </button>
-                </form>
-                <form class="d-flex justify-content-between">
+
+                <!-- Sección para el carrito y el botón del usuario -->
+                <div class="d-flex align-items-center">
                     <!-- Carrito Button -->
                     <a href="{% url 'carrito' %}" class="btn btn-outline-light btn-smaller me-2">
                         <i class="bi-cart-fill me-1"></i>
@@ -63,27 +72,25 @@
                         <span class="badge bg-dark text-white ms-1 rounded-pill badge-smaller">0</span>
                     </a>
 
-                    <!-- User Dropdown Button -->
+                    <!-- Botón desplegable del usuario -->
                     <div class="dropdown">
-                        <!-- En todas las plantillas donde se muestra el avatar -->
                         <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button"
                             id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                             {{ user.username }}
                             <img src="{{imagen}}" alt="Avatar del usuario" class="avatar-small">
                         </button>
-
-
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <li><a class="dropdown-item" href="{% url 'New' %}">Crear Servicio</a></li>
+                            <li><a class="dropdown-item" href="{% url 'miscompras' %}">Mis Compras</a></li>
+                            <li><a class="dropdown-item" href="{% url 'misventas' %}">Mis Ventas</a></li>
                             <li><a class="dropdown-item" href="{% url 'editarperfil' %}">Perfil</a></li>
-                            <li><a class="dropdown-item" href="{% url 'miscompras' %}">Mis compras</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item" href="{% url 'cerrarsesion' %}">Cerrar sesión</a></li>
                         </ul>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </nav>

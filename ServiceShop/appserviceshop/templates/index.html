@@ -1,69 +1,60 @@
 {% extends "padre.html" %} 
-{%load static%} 
+{% load static %} 
 {% block contenidoQueCambia %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Servicios</title>
-    <!-- Add your CSS and Bootstrap links here -->
-</head>
-<body>
-    <!-- Section-->
-    <section class="py-5">
-        <div class="container px-4 px-lg-5 mt-5">
-            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-                {% for servicio in servicios %}
-                <div class="col mb-5">
-                    <div class="card h-100">
-                        <!-- Product image-->
-                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
-                        <!-- Product details-->
-                        <div class="card-body p-4">
-                            <div>
-                                <!-- Product name-->
-                                <h5 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">{{ servicio.name }}</h5>
-                                <!-- Separator line -->
-                                <hr style="margin-bottom: 0.75rem;">
-                                <!-- Separator line -->
-                                <hr style="margin-bottom: 0.75rem;">
-                                <!-- Product category-->
-                                <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                    Categoría: <span style="font-weight: 500;">{{ servicio.categoria }}</span>
-                                </p>
-                                <!-- Product zone-->
-                                <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                    Zona: <span style="font-weight: 500;">{{ servicio.zona }}</span>
-                                </p>
-                                <!-- Product price-->
-                                <p style="font-size: 1.125rem; font-weight: 700; color: #212529; text-align: center;">
-                                    Precio: ${{ servicio.precio }}
-                                </p>
-                            </div>
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<!-- Section -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for servicio in servicios %}
+            <div class="col mb-5">
+                <div class="card h-100">
+                    <!-- Product image -->
+                    <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
+                    <!-- Product details -->
+                    <div class="card-body p-4">
+                        <div>
+                            <!-- Product name -->
+                            <h5 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">{{ servicio.name }}</h5>
+                            <!-- Separator line -->
+                            <hr style="margin-bottom: 0.75rem;">
+                            <!-- Product category -->
+                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                                Categoría: <span style="font-weight: 500;">{{ servicio.categoria }}</span>
+                            </p>
+                            <!-- Product zone -->
+                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                                Zona: <span style="font-weight: 500;">{{ servicio.zona }}</span>
+                            </p>
+                            <!-- Product price -->
+                            <p style="font-size: 1.125rem; font-weight: 700; color: #212529; text-align: center;">
+                                Precio: ${{ servicio.precio }}
+                            </p>
                         </div>
-                        <!-- Product actions-->
-                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center">
-                                <a class="btn btn-outline-dark mt-auto" href="{% url 'carrito' %}">Añadir al carrito</a>
-                                <br></br>
-                                <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' servicio.id %}">Ver mas</a>
-                            </div>
+                    </div>
+                    <!-- Product actions -->
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+                            <a class="btn btn-outline-dark mt-auto" href="{% url 'carrito' %}">Añadir al carrito</a>
+                            <br></br>
+                            <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' servicio.id %}">Ver más</a>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <p>No hay servicios disponibles en este momento.</p>
-                {% endfor %}
             </div>
+            {% empty %}
+            <p>No hay servicios disponibles en este momento.</p>
+            {% endfor %}
         </div>
-
-    </section>
-
-    <!-- Add your JS scripts here -->
-</body>
-</html>
-
+    </div>
+</section>
 
 {% endblock %}
