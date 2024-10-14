@@ -173,3 +173,8 @@ class Crearservicio(LoginRequiredMixin, CreateView):
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
     success_url = reverse_lazy('inicio') 
     template_name = "crearservicio.html"
+    def form_valid(self, form):
+        # Asignar el usuario actual como vendedor
+        servicio = form.save()  # Guardar el nuevo servicio
+        Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  # Crear la venta vinculada
+        return super().form_valid(form)

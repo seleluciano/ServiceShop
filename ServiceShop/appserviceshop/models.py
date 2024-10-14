@@ -42,15 +42,9 @@ class Servicio(models.Model):
 
 
 class Ventas_M(models.Model):
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
-    vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
+    servicio = models.OneToOneField(Servicio, on_delete=models.CASCADE)
+    vendedor = models.OneToOneField(User, on_delete=models.CASCADE)
     fecha_venta = models.DateTimeField(auto_now_add=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    estado = models.CharField(max_length=50, choices=[('completada', 'Completada'), ('cancelada', 'Cancelada')])
-
-    def __str__(self):
-        return f"{self.servicio.nombre} vendido por {self.vendedor.username}"
-    
  
 
 class Producto(models.Model):
