@@ -2,64 +2,72 @@
 {% load static %}
 {% block contenidoQueCambia %}
 
-<div class="container mt-2 pt-5">
-    
-    <h1 style="margin-top: 25px;">Mis Ventas</h1>
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
 
-    <!-- Filtros -->
-    <div class="filters">
-        <input type="date" id="filter-date" placeholder="Filtrar por fecha">
-        <select id="filter-status">
-            <option value="">Filtrar por estado</option>
-            <option value="completada">Completada</option>
-            <option value="cancelada">Cancelada</option>
-        </select>
-        <input type="text" id="filter-service" placeholder="Filtrar por tipo de servicio">
-    </div>
+<!-- Section -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <h1 style="text-align: center; margin-bottom: 25px;">Mis Ventas</h1>
 
-    <!-- Lista de ventas -->
-    <div class="purchase-list" id="purchase-list">
-        {% for venta in page_obj %}
-        <div class="purchase-item">
-            <img src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
-            <div class="purchase-details">
-                <h3>{{ venta.servicio.nombre }}</h3>
-                <p><strong>Precio:</strong> ${{ venta.precio }}</p>
-                <p><strong>Fecha:</strong> {{ venta.fecha_venta|date:"Y-m-d" }}</p>
-                <p><strong>Estado:</strong> {{ venta.estado }}</p>
-                <div class="actions">
-                    <button class="details-btn">Ver Detalles</button>
-                    <button class="download-btn">Descargar Comprobante</button>
+        <!-- Filtros -->
+        <div class="filters mb-4">
+            <input type="date" id="filter-date" class="form-control" placeholder="Filtrar por fecha">
+            <select id="filter-status" class="form-control mt-2">
+                <option value="">Filtrar por estado</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+            </select>
+            <input type="text" id="filter-service" class="form-control mt-2" placeholder="Filtrar por tipo de servicio">
+        </div>
+
+        <!-- Lista de ventas -->
+        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="purchase-list">
+            {% for venta in page_obj %}
+            <div class="col mb-4">
+                <div class="card h-100">
+                    <img class="card-img-top" src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">{{ venta.servicio.nombre }}</h5>
+                        <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
+                        <p class="card-text"><strong>Fecha:</strong> {{ venta.fecha_venta|date:"Y-m-d" }}</p>
+                        <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+                            <button class="btn btn-outline-dark mt-auto details-btn">Ver Detalles</button>
+                            <button class="btn btn-outline-dark mt-auto download-btn">Descargar Comprobante</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% empty %}
+            <div id="no-purchases" class="no-purchases col-12">
+                <p>No Existen Ventas en el Historial.</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div id="no-purchases" class="no-purchases">
-            No Existen Ventas en el Historial.
-        </div>
-        {% endfor %}
-    </div>
 
-    <!-- Paginación -->
-    <div class="pagination" style="text-align: center; margin-top: 20px;">
-        <span style="display: block; margin-bottom: 10px;">
-            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
-        </span>
-        <div class="pagination-buttons" style="display: inline-block;">
-            {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
-            {% endif %}
-            {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
-            {% endif %}
+        <!-- Paginación -->
+        <div class="pagination" style="text-align: center; margin-top: 20px;">
+            <span style="display: block; margin-bottom: 10px;">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+            </span>
+            <div class="pagination-buttons" style="display: inline-block;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    <!-- Botón para regresar a la página principal -->
-    <div style="text-align: center; margin-top: 30px;">
-        <a href="{% url 'inicio' %}" class="back-btn" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la Página de Servicios</a>
-    </div>
-</div>
+</section>
 
 {% endblock %}
-
