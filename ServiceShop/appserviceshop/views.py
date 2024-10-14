@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Servicio,Avatar
+from .models import Servicio, Avatar
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.models import User
@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
-from .models import Producto, Carrito, CarritoProducto, Servicio
+from .models import Producto, Carrito, CarritoProducto, Servicio #, Compras_M, Ventas_M
 
 
 @login_required
@@ -138,8 +138,8 @@ def Cambiaravatar(request):
             nuevo_avatar.save()  # Ahora guarda
             messages.success(request, "¡Avatar cambiado exitosamente!")  # Mensaje de éxito
            # return render(request, "inicio")
-            return render(request, "index.html")
-
+           # return render(request, "index.html")
+            return redirect("appserviceshop/index.html")
             #return redirect("inicio")  # Cambia 'index' por la URL a donde quieras redirigir
             
     else:
@@ -148,15 +148,23 @@ def Cambiaravatar(request):
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
 
+#@login_required
+#def Compras(request):
+#    return render(request, 'miscompras.html')
+
 @login_required
-def Compras(request):
-    return render(request, 'miscompras.html')
+def Compra_V(request):
+    compras_list = Compras_M.objects.filter(vendedor=request.user)
+    paginator = Paginator(compras_list, 5)  # Muestra 10 compras por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'miscompras.html', {'page_obj': page_obj})
+
 
 @login_required
 def Venta_V(request):
     ventas_list = Ventas_M.objects.filter(vendedor=request.user)  # Consulta las ventas del usuario actual
     paginator = Paginator(ventas_list, 5)  # Paginación de 5 ventas por página
-
     page_number = request.GET.get('page')  # Obtener número de página
     page_obj = paginator.get_page(page_number)  # Obtener la página actual
 

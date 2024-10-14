@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-from django.contrib.messages import constants as message_constants
+from django.contrib.messages import constants as message
 import os
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
@@ -54,13 +54,9 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    
 ]
 
 ROOT_URLCONF = 'ServiceShop.urls'
@@ -140,3 +136,10 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL='/appserviceshop/iniciosesion'
+
+MESSAGE_TAGS = {
+    message.ERROR: 'danger',
+    message.INFO: 'info',
+    message.SUCCESS: 'success',
+    message.WARNING: 'warning',
+}
