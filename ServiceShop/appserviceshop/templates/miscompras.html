@@ -3,111 +3,64 @@
 {% block contenidoQueCambia %}
 
 <div class="container mt-2 pt-5">
-        <h1>Mis Compras</h1>
+    
+    <h1 style="margin-top: 25px;">Mis Compras</h1>
 
-        <!-- Filtros -->
-        <div class="filters">
-            <input type="date" id="filter-date" placeholder="Filtrar por fecha">
-            <select id="filter-status">
-                <option value="">Filtrar por estado</option>
-                <option value="completada">Completada</option>
-                <option value="cancelada">Cancelada</option>
-                <option value="en-espera">En espera</option>
-            </select>
-            <input type="text" id="filter-service" placeholder="Filtrar por tipo de servicio">
-        </div>
-
-        <!-- Lista de compras -->
-        <div class="purchase-list" id="purchase-list">
-            <!-- Aquí se insertarán las compras dinámicamente -->
-        </div>
-
-        <!-- Si no hay compras -->
-        <div id="no-purchases" class="no-purchases" style="display:none;">
-            No tienes compras en tu historial.
-        </div>
-
-        <!-- Botón para regresar a la página principal -->
-        <a href="{% url 'inicio' %}" class="back-btn">Volver a la Página de Servicios</a>
+    <!-- Filtros -->
+    <div class="filters">
+        <input type="date" id="filter-date" placeholder="Filtrar por fecha">
+        <select id="filter-status">
+            <option value="">Filtrar por estado</option>
+            <option value="completada">Completada</option>
+            <option value="cancelada">Cancelada</option>
+            <option value="en-espera">En espera</option>
+        </select>
+        <input type="text" id="filter-service" placeholder="Filtrar por tipo de servicio">
     </div>
 
-    <script>
-        // Ejemplo de compras (puede ser reemplazado por datos dinámicos desde el servidor)
-        const compras = [
-            {
-                id: 1,
-                servicio: 'Diseño Web',
-                imagen: 'https://via.placeholder.com/150',
-                precio: 500,
-                fecha: '2024-09-30',
-                estado: 'completada',
-                descripcion: 'Diseño de una página web completa para empresas.',
-            },
-            {
-                id: 2,
-                servicio: 'SEO',
-                imagen: 'https://via.placeholder.com/150',
-                precio: 300,
-                fecha: '2024-10-01',
-                estado: 'en-espera',
-                descripcion: 'Optimización SEO para mejorar el posicionamiento en motores de búsqueda.',
-            }
-        ];
+    <!-- Lista de compras -->
+    <div class="purchase-list" id="purchase-list">
+        {% for compra in page_obj %}
+        <div class="purchase-item">
+            <img src="{{ compra.servicio.imagen.url }}" alt="{{ compra.servicio.nombre }}">
+            <div class="purchase-details">
+                <h3>{{ compra.servicio.nombre }}</h3>
+                <p><strong>Precio:</strong> ${{ compra.precio }}</p>
+                <p><strong>Fecha:</strong> {{ compra.fecha_compra|date:"Y-m-d" }}</p>
+                <p><strong>Descripción:</strong> {{ compra.descripcion }}</p>
+                <p><strong>Estado:</strong> {{ compra.estado }}</p>
+                <div class="actions">
+                    <button class="details-btn">Ver Detalles</button>
+                    <button class="download-btn">Descargar Comprobante</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div id="no-purchases" class="no-purchases">
+            No tienes compras en tu historial.
+        </div>
+        {% endfor %}
+    </div>
 
-        const purchaseList = document.getElementById('purchase-list');
-        const noPurchasesMessage = document.getElementById('no-purchases');
+    <!-- Paginación -->
+    <div class="pagination" style="text-align: center; margin-top: 20px;">
+        <span style="display: block; margin-bottom: 10px;">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+        </span>
+        <div class="pagination-buttons" style="display: inline-block;">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
+            {% endif %}
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+            {% endif %}
+        </div>
+    </div>
 
-        function renderPurchases(compras) {
-            if (compras.length === 0) {
-                noPurchasesMessage.style.display = 'block';
-                purchaseList.style.display = 'none';
-            } else {
-                noPurchasesMessage.style.display = 'none';
-                purchaseList.style.display = 'grid';
+    <!-- Botón para regresar a la página principal -->
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'inicio' %}" class="back-btn" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la Página de Servicios</a>
+    </div>
+</div>
 
-                // Renderiza cada compra en la lista
-                compras.forEach(compra => {
-                    const purchaseItem = document.createElement('div');
-                    purchaseItem.classList.add('purchase-item');
-                    purchaseItem.innerHTML = `
-                        <img src="${compra.imagen}" alt="${compra.servicio}">
-                        <div class="purchase-details">
-                            <h3>${compra.servicio}</h3>
-                            <p><strong>Precio:</strong> $${compra.precio}</p>
-                            <p><strong>Fecha:</strong> ${compra.fecha}</p>
-                            <p><strong>Descripción:</strong> ${compra.descripcion}</p>
-                            <p><strong>Estado:</strong> <span class="status ${compra.estado.toLowerCase()}">${compra.estado}</span></p>
-                            <div class="actions">
-                                <button class="details-btn">Ver Detalles</button>
-                                <button class="download-btn">Descargar Comprobante</button>
-                            </div>
-                        </div>
-                    `;
-                    purchaseList.appendChild(purchaseItem);
-                });
-            }
-        }
-
-        // Llama a la función de renderizado al cargar la página
-        renderPurchases(compras);
-
-        // Filtrado básico por servicio, estado o fecha
-        document.getElementById('filter-service').addEventListener('input', function() {
-            const filtered = compras.filter(compra => compra.servicio.toLowerCase().includes(this.value.toLowerCase()));
-            purchaseList.innerHTML = '';
-            renderPurchases(filtered);
-        });
-
-        document.getElementById('filter-status').addEventListener('change', function() {
-            const filtered = compras.filter(compra => compra.estado === this.value || this.value === '');
-            purchaseList.innerHTML = '';
-            renderPurchases(filtered);
-        });
-
-        document.getElementById('filter-date').addEventListener('change', function() {
-            const filtered = compras.filter(compra => compra.fecha === this.value);
-            purchaseList.innerHTML = '';
-            renderPurchases(filtered);
-        });
-    </script>
 {% endblock %}
