@@ -137,9 +137,10 @@ def Cambiaravatar(request):
             nuevo_avatar.user = usuario  # Asigna el usuario actual
             nuevo_avatar.save()  # Ahora guarda
             messages.success(request, "¡Avatar cambiado exitosamente!")  # Mensaje de éxito
+            return redirect('inicio')
            # return render(request, "inicio")
-           # return render(request, "index.html")
-            return redirect("appserviceshop/index.html")
+            #redirect("index.html")
+            #return render(request, "index.html")
             #return redirect("inicio")  # Cambia 'index' por la URL a donde quieras redirigir
             
     else:
