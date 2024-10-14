@@ -15,16 +15,19 @@
 
                 <!-- Sección para mostrar mensajes -->
                 {% if messages %}
-                    <div class="alert-container">
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        {% endfor %}
-                    </div>
+                     <div id="mensaje-exito">
+                      {% for message in messages %}
+                          <div class="alert alert-success">
+                              {{ message }}
+                               <button onclick="this.parentElement.style.display='none';" class="close">&times;</button>
+                         </div>
+                     {% endfor %}
+                      </div>
+                     <script>
+                       setTimeout(function() {
+                    document.getElementById('mensaje-exito').style.display = 'none';
+                        }, 10000); // 10000 ms = 10 segundos
+                     </script>
                 {% endif %}
             </form>
         </div>
