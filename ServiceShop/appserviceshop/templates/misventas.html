@@ -41,13 +41,13 @@
     </div>
 
     <!-- Paginación -->
-    <div class="pagination">
-        <span>
+    <div class="pagination" style="text-align: center; margin-top: 20px;">
+        <span style="display: block; margin-bottom: 10px;">
             Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
         </span>
-        <div class="pagination-buttons">
+        <div class="pagination-buttons" style="display: inline-block;">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
             {% endif %}
             {% if page_obj.has_next %}
                 <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
@@ -56,7 +56,10 @@
     </div>
 
     <!-- Botón para regresar a la página principal -->
-    <a href="{% url 'iniciosesion' %}" class="back-btn">Volver a la Página de Servicios</a>
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="{% url 'inicio' %}" class="back-btn" style="display: inline-block; background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Volver a la Página de Servicios</a>
+    </div>
 </div>
 
 {% endblock %}
+
