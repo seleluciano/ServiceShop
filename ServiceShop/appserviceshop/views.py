@@ -147,19 +147,15 @@ def Cambiaravatar(request):
 
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
-
-#@login_required
-#def Compras(request):
-#    return render(request, 'miscompras.html')
-
 @login_required
 def Compra_V(request):
-    compras_list = Compras_M.objects.filter(vendedor=request.user)
-    paginator = Paginator(compras_list, 5)  # Muestra 10 compras por página
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'miscompras.html', {'page_obj': page_obj})
+    compras_list = Compras_M.objects.filter(comprador=request.user)  # Consulta las compras del usuario actual
+    paginator = Paginator(compras_list, 5)  # Paginación de 5 compras por página
+    page_number = request.GET.get('page')  # Obtener número de página
+    page_obj = paginator.get_page(page_number)  # Obtener la página actual
 
+    # Renderiza la plantilla con el contexto de la paginación
+    return render(request, 'miscompras.html', {'page_obj': page_obj})
 
 @login_required
 def Venta_V(request):
@@ -170,7 +166,7 @@ def Venta_V(request):
 
     # Renderiza la plantilla con el contexto de la paginación
     return render(request, 'misventas.html', {'page_obj': page_obj})
-    
+
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio

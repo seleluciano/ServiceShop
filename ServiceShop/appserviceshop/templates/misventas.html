@@ -27,7 +27,7 @@
         </div>
 
         <!-- Lista de ventas -->
-        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="purchase-list">
+        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="venta-list">
             {% for venta in page_obj %}
             <div class="col mb-4">
                 <div class="card h-100">
@@ -35,7 +35,7 @@
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ venta.servicio.nombre }}</h5>
                         <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
-                        <p class="card-text"><strong>Fecha:</strong> {{ venta.fecha_venta|date:"Y-m-d" }}</p>
+                        <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}</p>
                         <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
@@ -47,7 +47,7 @@
                 </div>
             </div>
             {% empty %}
-            <div id="no-purchases" class="no-purchases col-12">
+            <div id="no-ventas" class="no-ventas col-12">
                 <p>No Existen Ventas en el Historial.</p>
             </div>
             {% endfor %}
