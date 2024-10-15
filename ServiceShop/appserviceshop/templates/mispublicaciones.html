@@ -1,0 +1,68 @@
+{% extends "padre.html" %}
+{% load static %}
+{% block contenidoQueCambia %}
+
+<!-- Mensajes de éxito -->
+{% if messages %}
+<div id="mensaje-exito">
+    {% for message in messages %}
+    <div class="alert alert-success">
+        {{ message }}
+        <button onclick="this.parentElement.style.display='none';" class="close">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    setTimeout(function () {
+        document.getElementById('mensaje-exito').style.display = 'none';
+    }, 10000); // 10000 ms = 10 segundos
+</script>
+{% endif %}
+
+<!-- Section de Servicios -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <!-- Botón de volver -->
+        <div class="container mt-5">
+            <a href="{% url 'New' %}" class="btn btn-secondary ms-3">Volver</a>
+        </div>
+
+        <!-- Grid de Servicios -->
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for servicio in page_obj %}
+            <div class="col mb-5">
+                <div class="card h-100">
+                    <!-- Imagen del Servicio -->
+                    <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
+                    <!-- Detalles del Servicio -->
+                    <div class="card-body p-4">
+                        <div>
+                            <h5 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">
+                                {{ servicio.name }}</h5>
+                            <hr style="margin-bottom: 0.75rem;">
+                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                                Categoría: <span style="font-weight: 500;">{{ servicio.categoria }}</span>
+                            </p>
+                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                                Zona: <span style="font-weight: 500;">{{ servicio.zona }}</span>
+                            </p>
+                            <p style="font-size: 1.125rem; font-weight: 700; color: #212529; text-align: center;">
+                                Precio: ${{ servicio.precio }}
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Acciones -->
+                    <div>
+                        <a href="{% url 'Delete' servicio.id %}" class="btn btn-outline-primary mt-auto">Eliminar</a>
+                        <a href="{% url 'Edit' servicio.id %}" class="btn btn-outline-primary mt-auto">Modificar</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No hay servicios disponibles en este momento.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

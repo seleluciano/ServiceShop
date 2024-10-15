@@ -12,11 +12,13 @@ urlpatterns = [
      path('cambiaravatar/',views.Cambiaravatar,name="cambiaravatar"),
      path('miscompras/',views.Compra_V,name="miscompras"),
      path('misventas/',views.Venta_V,name="misventas"),
+     path('mispublicaciones/',views.Mispublicaciones,name="mispublicaciones"),
      path('carrito/',views.Carrito,name="carrito"),
      path('añadir_al_carrito/', views.añadir_al_carrito,name="añadir_al_carrito"),
      path('<int:pk>', views.Detalleservicio.as_view(), name="Detail"),
      path('editar/<int:pk>', views.Modificarservicio.as_view(), name="Edit"),
      path('borrar/<int:pk>', views.Eliminarservicio.as_view(), name="Delete"),
+      path('venta/<int:venta_id>/actualizar_estado/', views.actualizar_estado_venta, name='actualizar_estado_venta'),
      
 ] 
 

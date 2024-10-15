@@ -16,3 +16,14 @@ def avatar_processor(request):
 def servicios_context(request):
     servicios = Servicio.objects.all()
     return {'servicios': servicios}
+
+def ventas_context(request):
+    if request.user.is_authenticated:
+        # Obtiene las ventas del usuario actual
+        ventas_list = Ventas_M.objects.filter(vendedor=request.user)
+    else:
+        ventas_list = []
+
+    return {
+        'ventas_list': ventas_list
+    }

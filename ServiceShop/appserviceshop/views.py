@@ -56,9 +56,6 @@ def Inicio(request):
 def Logout(request):
     return render(request, 'cerrarsesion.html')
 
-#@login_required
-#def Carrito(request):
-    #return render(request, 'carrito.html')
 
 def Iniciosesion(request):
     if request.method == 'POST':
@@ -160,14 +157,31 @@ def Compra_V(request):
 
 @login_required
 def Venta_V(request):
-    ventas_list = Ventas_M.objects.filter(vendedor=request.user)  # Consulta las ventas del usuario actual
-    paginator = Paginator(ventas_list, 5)  # Paginación de 5 ventas por página
+    return render(request, 'misventas.html')
+
+@login_required
+def actualizar_estado_venta(request, venta_id):
+    venta = get_object_or_404(Ventas_M, id=venta_id, vendedor=request.user)
+    
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in ['En curso', 'Cancelado', 'Completado']:
+            venta.estado = nuevo_estado
+            venta.save()
+        else:
+            messages.error(request, 'Estado no válido.')
+    
+    return render(request,'misventas.html')
+
+@login_required
+def Mispublicaciones(request):
+    publicaciones_list = Servicio.objects.filter(vendedor=request.user)  # Consulta las ventas del usuario actual
+    paginator = Paginator(publicaciones_list, 5)  # Paginación de 5 ventas por página
     page_number = request.GET.get('page')  # Obtener número de página
     page_obj = paginator.get_page(page_number)  # Obtener la página actual
 
     # Renderiza la plantilla con el contexto de la paginación
-    return render(request, 'misventas.html', {'page_obj': page_obj})
-
+    return render(request, 'mispublicaciones.html', {'page_obj': page_obj})
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
@@ -176,13 +190,17 @@ class Detalleservicio(LoginRequiredMixin,DetailView):
 class Crearservicio(LoginRequiredMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
-    success_url = reverse_lazy('inicio') 
+    success_url = reverse_lazy('inicio')
     template_name = "crearservicio.html"
+
     def form_valid(self, form):
         # Asignar el usuario actual como vendedor
-        servicio = form.save()  # Guardar el nuevo servicio
-        Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  # Crear la venta vinculada
+        form.instance.vendedor = self.request.user  # Asignar el vendedor al servicio antes de guardarlo
+        servicio = form.save()  # Guardar el servicio
+        # Crear la venta vinculada
+        Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  
         return super().form_valid(form)
+
 
 class Modificarservicio(LoginRequiredMixin,UpdateView):
     model=Servicio
