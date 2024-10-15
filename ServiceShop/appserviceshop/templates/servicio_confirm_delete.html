@@ -1,0 +1,32 @@
+{% extends "padre.html" %}
+{% load static %}
+
+{% block contenidoQueCambia %}
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 mb-5">
+                <div class="card h-100 text-center">
+                    <!-- Cuerpo del card -->
+                    <div class="card-body p-4">
+                        <div>
+                            <!-- Mensaje de confirmación -->
+                            <h5 class="text-center" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">
+                                ¿¿Estás seguro de eliminar el servicio??
+                            </h5>
+
+                            <!-- Formulario para eliminar el servicio -->
+                            <form method="POST" class="formulario">
+                                {% csrf_token %}
+                                <input type="submit" value="Eliminar" class="btn btn-outline-danger mt-3" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -3,11 +3,11 @@
 {% block contenidoQueCambia %}
 
 {% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
+<ul class="messages">
+    {% for message in messages %}
+    <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
 {% endif %}
 
 <!-- Section -->
@@ -35,13 +35,16 @@
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ venta.servicio.nombre }}</h5>
                         <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
-                        <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}</p>
+                        <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}
+                        </p>
                         <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
-                            <button class="btn btn-outline-dark mt-auto details-btn">Ver Detalles</button>
                             <button class="btn btn-outline-dark mt-auto download-btn">Descargar Comprobante</button>
+                            <br></br>
+                            <a href="{% url 'Delete' venta.servicio.id %}"class="btn btn-outline-primary mt-auto">Eliminar</a>
+                            <a href="{% url 'Edit' venta.servicio.id %}" class="btn btn-outline-primary mt-auto">Modificar</a>
                         </div>
                     </div>
                 </div>
@@ -60,10 +63,10 @@
             </span>
             <div class="pagination-buttons" style="display: inline-block;">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
+                <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
                 {% endif %}
             </div>
         </div>

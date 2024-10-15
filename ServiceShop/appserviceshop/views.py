@@ -183,3 +183,14 @@ class Crearservicio(LoginRequiredMixin, CreateView):
         servicio = form.save()  # Guardar el nuevo servicio
         Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  # Crear la venta vinculada
         return super().form_valid(form)
+
+class Modificarservicio(LoginRequiredMixin,UpdateView):
+    model=Servicio
+    fields=['nombre','descripcion','tipo']
+    success_url = '/appserviceshop/misventas' 
+    template_name="servicio_form.html"
+
+class Eliminarservicio(LoginRequiredMixin,DeleteView):
+    model=Servicio
+    template_name="servicio_confirm_delete.html"
+    success_url = '/appserviceshop/misventas' 
