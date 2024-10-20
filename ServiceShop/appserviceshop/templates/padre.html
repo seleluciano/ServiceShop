@@ -65,11 +65,13 @@
                 <!-- Sección para el carrito y el botón del usuario -->
                 <div class="d-flex align-items-center">
                     <!-- Carrito Button -->
-                    <a href="#!" class="btn btn-outline-light btn-smaller me-2">
+                    <a href="{% url 'ver_carrito' %}" class="btn btn-outline-light btn-smaller me-2">
                         <i class="bi-cart-fill me-1"></i>
                         Carrito
-                        <span class="badge bg-dark text-white ms-1 rounded-pill badge-smaller">0</span>
-                    </a>
+                        <span class="badge bg-dark text-white ms-1 rounded-pill badge-smaller">
+                            {{ carrito_cantidad }}  <!-- Muestra la cantidad real de servicios en el carrito -->
+                        </span>
+                    </a>  
 
                     <!-- Botón desplegable del usuario -->
                     <div class="dropdown">

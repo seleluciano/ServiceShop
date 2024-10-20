@@ -72,10 +72,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                 'appserviceshop.context_processors.avatar_processor',
-                 'appserviceshop.context_processors.servicios_context',
-                 'appserviceshop.context_processors.ventas_context',
-            ],
+                'appserviceshop.context_processors.avatar_processor',
+                'appserviceshop.context_processors.servicios_context',
+                'appserviceshop.context_processors.ventas_context',
+                'appserviceshop.context_processors.carrito_context',
+
+           ],
         },
     },
 ]

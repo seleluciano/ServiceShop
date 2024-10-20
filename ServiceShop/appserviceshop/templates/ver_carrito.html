@@ -1,0 +1,46 @@
+{% extends 'padre.html' %}
+
+{% block contenidoQueCambia %}
+<!-- Section -->
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <h1 style="text-align: center; margin-bottom: 25px;">Tu Carrito</h1>
+
+        <!-- Lista de servicios en el carrito -->
+        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center">
+            {% if servicios_en_carrito %}
+                {% for servicio in servicios_en_carrito %}
+                <div class="col mb-4">
+                    <div class="card h-100">
+                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}">
+                        <div class="card-body p-4">
+                            <h5 class="card-title">{{ servicio.name }}</h5>
+                            <p class="card-text"><strong>Precio:</strong> ${{ servicio.precio }}</p>
+                            <p class="card-text"><strong>Cantidad:</strong>
+                                <form method="POST" action="{% url 'actualizar_cantidad' servicio.id %}">
+                                    {% csrf_token %}
+                                    <input type="number" name="cantidad" value="{{ servicio.servicioencarrito_set.first.cantidad }}" min="1" style="width: 60px;">
+                                    <button type="submit" class="btn btn-outline-dark mt-2">Agregar cantidad</button>
+                                </form>
+                            </p>
+                            <form method="POST" action="{% url 'eliminar_del_carrito' servicio.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger mt-2">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div id="no-servicios" class="no-servicios col-12">
+                    <p>No hay servicios en tu carrito.</p>
+                </div>
+                {% endfor %}
+            </div>
+            <p class="text-center"><strong>Total: ${{ total_precio }}</strong></p>
+        {% else %}
+            <p class="text-center">Tu carrito está vacío.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

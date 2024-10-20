@@ -60,7 +60,7 @@ def Registrarusuario(request):
             username = form.cleaned_data['username']
             form.save()
             messages.success(request, "Usuario creado exitosamente :)")  # Mensaje de éxito
-            return redirect('inicio')
+            return render(request, "index.html")
     else:
         form = UserRegisterForm()
 
@@ -161,6 +161,62 @@ def Mispublicaciones(request):
 
     # Renderiza la plantilla con el contexto de la paginación
     return render(request, 'mispublicaciones.html', {'page_obj': page_obj})
+
+@login_required
+def anadir_al_carrito(request, servicio_id):
+    servicio = get_object_or_404(Servicio, id=servicio_id)
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+
+    # Comprueba si el servicio ya está en el carrito
+    servicio_en_carrito, created = ServicioEnCarrito.objects.get_or_create(carrito=carrito, servicio=servicio)
+
+    # Si el servicio ya existe, puedes incrementar la cantidad
+    if not created:
+        servicio_en_carrito.cantidad += 1
+        servicio_en_carrito.save()
+        messages.success(request, f"Se ha incrementado la cantidad de '{servicio.name}' en el carrito.")
+    else:
+        messages.success(request, f"Se ha añadido '{servicio.name}' al carrito.")
+
+    # Redirige a la vista del carrito después de añadir el servicio
+    return redirect('ver_carrito')  # Redirigir a ver el carrito
+
+
+@login_required
+def ver_carrito(request):
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+        servicios_en_carrito = carrito.servicios.all()  # Obtiene todos los servicios en el carrito
+    except Carrito.DoesNotExist:
+        servicios_en_carrito = []  # Si no existe un carrito, se asigna una lista vacía
+
+    # Calcular el precio total
+    total_precio = sum(servicio.precio for servicio in servicios_en_carrito)
+
+    return render(request, 'ver_carrito.html', {
+        'servicios_en_carrito': servicios_en_carrito,
+        'total_precio': total_precio,
+    })
+
+# Vista para actualizar la cantidad del servicio en el carrito
+def actualizar_cantidad(request, servicio_id):
+    if request.method == 'POST':
+        cantidad = int(request.POST.get('cantidad', 1))
+        carrito = Carrito.objects.get(usuario=request.user)
+        servicio = get_object_or_404(Servicio, id=servicio_id)
+        servicio_en_carrito = ServicioEnCarrito.objects.get(carrito=carrito, servicio=servicio)
+        servicio_en_carrito.cantidad = cantidad
+        servicio_en_carrito.save()
+        return render(request,'ver_carrito.html')
+
+
+# Vista para eliminar un servicio del carrito
+def eliminar_del_carrito(request, servicio_id):
+    if request.method == 'POST':
+        carrito = Carrito.objects.get(usuario=request.user)
+        servicio = get_object_or_404(Servicio, id=servicio_id)
+        ServicioEnCarrito.objects.filter(carrito=carrito, servicio=servicio).delete()
+        return redirect('ver_carrito')
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
