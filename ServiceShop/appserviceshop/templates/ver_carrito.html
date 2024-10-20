@@ -1,0 +1,13 @@
+{% extends "padre.html" %}
+{% block contenidoQueCambia %}
+<h2>Tu Carrito</h2>
+{% if servicios_en_carrito %}
+    <ul>
+    {% for item in servicios_en_carrito %}
+        <li>{{ item.servicio.name }} - Cantidad: {{ item.cantidad }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Tu carrito está vacío.</p>
+{% endif %}
+{% endblock %}

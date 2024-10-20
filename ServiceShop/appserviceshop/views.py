@@ -21,6 +21,7 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import *
 
 
+
 @login_required
 def Inicio(request):
     servicios = Servicio.objects.all()  # Ejemplo, ajusta según tu modelo
@@ -182,3 +183,30 @@ class Eliminarservicio(LoginRequiredMixin,DeleteView):
     model=Servicio
     template_name="servicio_confirm_delete.html"
     success_url = '/appserviceshop/misventas' 
+
+
+@login_required
+def anadir_al_carrito(request, servicio_id):
+    servicio = get_object_or_404(Servicio, id=servicio_id)
+    
+    # Obtener o crear el carrito del usuario
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
+    
+    # Añadir el servicio al carrito
+    servicio_en_carrito, created = ServicioEnCarrito.objects.get_or_create(carrito=carrito, servicio=servicio)
+    servicio_en_carrito.cantidad += 1  # Incrementar la cantidad
+    servicio_en_carrito.save()
+    
+    messages.success(request, f'{servicio.name} ha sido añadido al carrito.')
+    return redirect('inicio')  # Redirige a donde desees
+
+
+@login_required
+def ver_carrito(request):
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+        servicios_en_carrito = ServicioEnCarrito.objects.filter(carrito=carrito)  # Obtén los items del carrito
+    except Carrito.DoesNotExist:
+        servicios_en_carrito = []  # Si no hay carrito, la lista está vacía
+
+    return render(request, 'appserviceshop/ver_carrito.html', {'servicios_en_carrito': servicios_en_carrito})

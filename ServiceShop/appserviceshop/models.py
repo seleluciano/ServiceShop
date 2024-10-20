@@ -74,3 +74,15 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=1000, decimal_places=2)
     # Otros campos según sea necesario
+
+
+class Carrito(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    servicios = models.ManyToManyField(Servicio, through='ServicioEnCarrito')
+
+class ServicioEnCarrito(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+
+
