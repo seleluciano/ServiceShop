@@ -2,24 +2,6 @@
 {% load static %} 
 {% block contenidoQueCambia %}
 
-
-{% if messages %}
-                     <div id="mensaje-exito">
-                      {% for message in messages %}
-                          <div class="alert alert-success">
-                              {{ message }}
-                               <button onclick="this.parentElement.style.display='none';" class="close">&times;</button>
-                         </div>
-                     {% endfor %}
-                      </div>
-                     <script>
-                       setTimeout(function() {
-                    document.getElementById('mensaje-exito').style.display = 'none';
-                        }, 10000); // 10000 ms = 10 segundos
-                     </script>
-                {% endif %}
-
-
 <!-- Section -->
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">

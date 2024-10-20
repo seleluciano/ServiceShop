@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
 from appserviceshop.models import *
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegisterForm,UserEditForm,AvatarFormulario
 from django.contrib.auth.decorators import login_required
-#from django.views.generic import ListView
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,13 +11,14 @@ from .models import Servicio, Avatar
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.models import User
-from django.contrib.auth import update_session_auth_hash
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from .models import *
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth import update_session_auth_hash
 
 
 @login_required
@@ -28,6 +28,7 @@ def Inicio(request):
 
 @login_required
 def Logout(request):
+    logout(request)
     return render(request, 'cerrarsesion.html')
 
 
@@ -40,10 +41,13 @@ def Iniciosesion(request):
             user = authenticate(username=usuario, password=contrasenia)
             if user is not None:
                 login(request, user)
+                messages.success(request, f"Bienvenido {usuario}!")  # Mensaje de éxito
                 return redirect('inicio')  # Redirige al inicio o a la página deseada
             else:
+                messages.error(request, "Datos incorrectos")  # Mensaje de error
                 return render(request, "iniciosesion.html", {"mensaje": "Datos incorrectos", "hide_navbar": True})
         else:
+            messages.error(request, "Formulario erróneo")  # Mensaje de error
             return render(request, "iniciosesion.html", {"mensaje": "Formulario erróneo", "hide_navbar": True})
     
     form = AuthenticationForm()
@@ -55,7 +59,8 @@ def Registrarusuario(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             form.save()
-            return render(request, "index.html",  {"mensaje": "Usuario Creado :)"})
+            messages.success(request, "Usuario creado exitosamente :)")  # Mensaje de éxito
+            return redirect('inicio')
     else:
         form = UserRegisterForm()
 
@@ -74,6 +79,7 @@ def Editarperfil(request):
             if nuevo_username != usuario.username:
                 if User.objects.filter(username=nuevo_username).exists():
                     miFormulario.add_error('username', "El nombre de usuario ya está en uso.")
+                    messages.error(request, "El nombre de usuario ya está en uso.")  # Mensaje de error
                 else:
                     usuario.username = nuevo_username
             
@@ -85,13 +91,16 @@ def Editarperfil(request):
             if informacion.get('password1') and informacion['password1'] == informacion['password2']:
                 usuario.set_password(informacion['password1'])  # Cambia la contraseña
                 update_session_auth_hash(request, usuario)  # Mantiene la sesión activa
+                messages.success(request, "Perfil actualizado y contraseña cambiada.")  # Mensaje de éxito
+            else:
+                messages.success(request, "Perfil actualizado correctamente.")  # Mensaje de éxito sin contraseña
 
             usuario.save() 
-            return render(request, 'index.html') # Redirigir a otra página después de guardar
+            return redirect('inicio')
     else: 
         miFormulario = UserEditForm(instance=usuario)  # Carga los datos actuales del usuario
 
-    return render(request, "editarperfil.html", {"miFormulario": miFormulario, "usuario": usuario})  
+    return render(request, "editarperfil.html", {"miFormulario": miFormulario, "usuario": usuario})
 
 @login_required
 def Cambiaravatar(request):
@@ -157,10 +166,11 @@ class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
 
-class Crearservicio(LoginRequiredMixin, CreateView):
+class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
     success_url = reverse_lazy('inicio')
+    success_message = "Servicio creado exitosamente."  # Mensaje de éxito
     template_name = "crearservicio.html"
 
     def form_valid(self, form):
@@ -170,15 +180,16 @@ class Crearservicio(LoginRequiredMixin, CreateView):
         # Crear la venta vinculada
         Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  
         return super().form_valid(form)
+    
+class Modificarservicio(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Servicio
+    fields = ['nombre', 'descripcion', 'tipo']
+    success_url = '/appserviceshop/misventas'
+    template_name = "servicio_form.html"
+    success_message = "Servicio modificado correctamente."  # Mensaje de éxito
 
-
-class Modificarservicio(LoginRequiredMixin,UpdateView):
-    model=Servicio
-    fields=['nombre','descripcion','tipo']
-    success_url = '/appserviceshop/misventas' 
-    template_name="servicio_form.html"
-
-class Eliminarservicio(LoginRequiredMixin,DeleteView):
-    model=Servicio
-    template_name="servicio_confirm_delete.html"
-    success_url = '/appserviceshop/misventas' 
+class Eliminarservicio(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Servicio
+    template_name = "servicio_confirm_delete.html"
+    success_url = '/appserviceshop/misventas'
+    success_message = "Servicio eliminado correctamente."  # Mensaje de éxito

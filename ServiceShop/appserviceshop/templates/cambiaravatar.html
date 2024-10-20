@@ -12,39 +12,8 @@
                 {% csrf_token %}
                 {{ miFormulario.as_p }}                          
                 <button type="submit">Guardar</button>
-
-                <!-- Sección para mostrar mensajes -->
-                {% if messages %}
-                     <div id="mensaje-exito">
-                      {% for message in messages %}
-                          <div class="alert alert-success">
-                              {{ message }}
-                               <button onclick="this.parentElement.style.display='none';" class="close">&times;</button>
-                         </div>
-                     {% endfor %}
-                      </div>
-                     <script>
-                       setTimeout(function() {
-                    document.getElementById('mensaje-exito').style.display = 'none';
-                        }, 10000); // 10000 ms = 10 segundos
-                     </script>
-                {% endif %}
             </form>
         </div>
     </div>
 </div>
-
-<!-- CSS para estilizar los mensajes -->
-<style>
-    .alert-container {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1050;
-    }
-    .alert {
-        margin-bottom: 20px;
-    }
-</style>
-
 {% endblock %}
