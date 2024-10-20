@@ -18,33 +18,7 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
-from .models import Producto, Carrito, CarritoProducto, Servicio #, Compras_M, Ventas_M
-
-
-@login_required
-def añadir_al_carrito(request, servicio_id):
-    servicio = Servicio.objects.get(id=servicio_id)
-    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
-
-    # Intenta obtener el objeto CarritoProducto existente
-    carritoproducto, created = CarritoProducto.objects.get_or_create(carrito=carrito, servicio=servicio)
-    
-    # Si ya existe, incrementa la cantidad
-    if not created:
-        carritoproducto.cantidad += 1
-        carritoproducto.save()
-
-    return redirect('carrito')  # Redirige a la vista del carrito después de añadir
-
-@login_required
-def Carrito_V(request):
-    carrito = Carrito.objects.get(usuario=request.user)
-    servicios_en_carrito = carrito.carritoproducto_set.all()  # Obtiene todos los servicios en el carrito
-    
-    context = {
-        'servicios_en_carrito': servicios_en_carrito,
-    }
-    return render(request, 'carrito.html', context)
+from .models import *
 
 
 @login_required
@@ -135,10 +109,6 @@ def Cambiaravatar(request):
             nuevo_avatar.save()  # Ahora guarda
             messages.success(request, "¡Avatar cambiado exitosamente!")  # Mensaje de éxito
             return redirect('inicio')
-           # return render(request, "inicio")
-            #redirect("index.html")
-            #return render(request, "index.html")
-            #return redirect("inicio")  # Cambia 'index' por la URL a donde quieras redirigir
             
     else:
         miFormulario = AvatarFormulario(instance=avatar)
