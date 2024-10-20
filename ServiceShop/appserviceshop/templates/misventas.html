@@ -6,9 +6,23 @@
     <div class="container px-4 px-lg-5 mt-5">
         <h1 style="text-align: center; margin-bottom: 25px;">Mis Ventas</h1>
 
+        <!-- Filtros -->
+        <div class="filters mb-4">
+            <form method="GET" action="{% url 'misventas' %}">
+                <input type="date" id="filter-date" name="date" class="form-control" placeholder="Filtrar por fecha">
+                <select id="filter-status" name="status" class="form-control mt-2">
+                    <option value="">Filtrar por estado</option>
+                    <option value="En curso">En curso</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Completado">Completado</option>
+                </select>
+                <button type="submit" class="btn btn-primary mt-2">Aplicar Filtros</button>
+            </form>
+        </div>
+
         <!-- Lista de ventas -->
         <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="venta-list">
-            {% for venta in ventas_list %}
+            {% for venta in page_obj %}
             <div class="col mb-4">
                 <div class="card h-100">
                     <img class="card-img-top" src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
@@ -17,6 +31,36 @@
                         <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
                         <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}</p>
                         <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
+
+                        <!-- Botón desplegable para cambiar el estado -->
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ venta.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                Cambiar Estado
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ venta.id }}">
+                                <li>
+                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="En curso">
+                                        <button class="dropdown-item" type="submit">En curso</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="Cancelado">
+                                        <button class="dropdown-item" type="submit">Cancelado</button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="estado" value="Completado">
+                                        <button class="dropdown-item" type="submit">Completado</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -26,8 +70,22 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- Paginación -->
+        <div class="pagination" style="text-align: center; margin-top: 20px;">
+            <span style="display: block; margin-bottom: 10px;">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+            </span>
+            <div class="pagination-buttons" style="display: inline-block;">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}&date={{ request.GET.date }}&status={{ request.GET.status }}" style="margin-right: 10px;">Anterior</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}&date={{ request.GET.date }}&status={{ request.GET.status }}">Siguiente</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </section>
 
 {% endblock %}
-

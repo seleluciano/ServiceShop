@@ -40,17 +40,6 @@ class Servicio(models.Model):
     def __str__(self):
         return self.name
 
-
-class Compras_M(models.Model):
-    servicio = models.OneToOneField(Servicio, on_delete=models.CASCADE)
-    comprador = models.OneToOneField(User, on_delete=models.CASCADE)
-    fecha_compra = models.DateTimeField(auto_now_add=True)
-    venta = models.OneToOneField('Ventas_M', on_delete=models.CASCADE, null=True, blank=True)  # Relación con la venta
-    total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True) 
-
-from django.db import models
-from django.contrib.auth.models import User
-
 class Ventas_M(models.Model):
     CATEGORIA_CHOICES = [
         ('En curso', 'En curso'),
@@ -65,10 +54,17 @@ class Ventas_M(models.Model):
         choices=CATEGORIA_CHOICES,
         default='En curso'  # Valor predeterminado para el estado
     )
-    fecha_venta = models.DateTimeField(default=timezone.now)
+    
     def __str__(self):
         return f"Venta de {self.servicio.nombre} por {self.vendedor.username} - Estado: {self.estado}"
 
+
+class Compras_M(models.Model):
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)  # Cambiado a ForeignKey
+    comprador = models.ForeignKey(User, on_delete=models.CASCADE)  # Cambiado a ForeignKey
+    fecha_compra = models.DateTimeField(auto_now_add=True)
+    venta = models.ForeignKey(Ventas_M, on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
 class Carrito(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)

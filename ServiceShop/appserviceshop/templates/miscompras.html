@@ -8,13 +8,16 @@
 
         <!-- Filtros -->
         <div class="filters mb-4">
-            <input type="date" id="filter-date" class="form-control" placeholder="Filtrar por fecha">
-            <select id="filter-status" class="form-control mt-2">
-                <option value="">Filtrar por estado</option>
-                <option value="completada">Completada</option>
-                <option value="cancelada">Cancelada</option>
-            </select>
-            <input type="text" id="filter-service" class="form-control mt-2" placeholder="Filtrar por tipo de servicio">
+            <form method="GET" action="{% url 'miscompras' %}">
+                <input type="date" id="filter-date" name="date" class="form-control" placeholder="Filtrar por fecha">
+                <select id="filter-status" name="status" class="form-control mt-2">
+                    <option value="">Filtrar por estado</option>
+                    <option value="completado">Completado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+                <input type="text" id="filter-service" name="service" class="form-control mt-2" placeholder="Filtrar por tipo de servicio">
+                <button type="submit" class="btn btn-primary mt-2">Aplicar Filtros</button>
+            </form>
         </div>
 
         <!-- Lista de compras -->
@@ -32,8 +35,9 @@
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
                             <button class="btn btn-outline-dark mt-auto details-btn">Ver Detalles</button>
+                            <br></br>
                             <button class="btn btn-outline-dark mt-auto download-btn">Descargar Comprobante</button>
-                          </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -51,10 +55,10 @@
             </span>
             <div class="pagination-buttons" style="display: inline-block;">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}" style="margin-right: 10px;">Anterior</a>
+                    <a href="?page={{ page_obj.previous_page_number }}&date={{ request.GET.date }}&status={{ request.GET.status }}&service={{ request.GET.service }}" style="margin-right: 10px;">Anterior</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+                    <a href="?page={{ page_obj.next_page_number }}&date={{ request.GET.date }}&status={{ request.GET.status }}&service={{ request.GET.service }}">Siguiente</a>
                 {% endif %}
             </div>
         </div>

@@ -37,10 +37,39 @@
                 {% endfor %}
             </div>
             <p class="text-center"><strong>Total: ${{ total_precio }}</strong></p>
+            <div class="text-center">  <!-- Clase para centrar el contenido -->
+                <!-- Botón que activa el modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarModal">
+                    Confirmar Compra
+                </button>
+            </div>
         {% else %}
             <p class="text-center">Tu carrito está vacío.</p>
         {% endif %}
     </div>
 </section>
 
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmarModal" tabindex="-1" aria-labelledby="confirmarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarModalLabel">Confirmación de Compra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Estás seguro que deseas confirmar la compra?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form method="POST" action="{% url 'confirmar_carrito' %}" id="confirmarCompraForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Confirmar Compra</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+

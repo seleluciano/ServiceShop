@@ -123,20 +123,54 @@ def Cambiaravatar(request):
         miFormulario = AvatarFormulario(instance=avatar)
 
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
+def mis_compras(request):
+    compras = Compras_M.objects.all()
 
-@login_required
-def Compra_V(request):
-    compras_list = Compras_M.objects.filter(comprador=request.user)  # Consulta las compras del usuario actual
-    paginator = Paginator(compras_list, 5)  # Paginación de 5 compras por página
-    page_number = request.GET.get('page')  # Obtener número de página
-    page_obj = paginator.get_page(page_number)  # Obtener la página actual
+    # Filtrar por fecha
+    fecha = request.GET.get('date')
+    if fecha:
+        compras = compras.filter(fecha_compra__date=fecha)
 
-    # Renderiza la plantilla con el contexto de la paginación
+    # Filtrar por estado
+    estado = request.GET.get('status')
+    if estado:
+        # Asegúrate de que el estado se compara correctamente
+        compras = compras.filter(venta__estado__iexact=estado)
+
+    # Filtrar por nombre de servicio
+    servicio = request.GET.get('service')
+    if servicio:
+        compras = compras.filter(servicio__nombre__icontains=servicio)
+
+    # Paginación
+    page_number = request.GET.get('page')  # Obtener el número de página actual
+    paginator = Paginator(compras, 10)  # Mostrar 10 compras por página
+    page_obj = paginator.get_page(page_number)  # Obtener el objeto de la página actual
+
     return render(request, 'miscompras.html', {'page_obj': page_obj})
 
+
+
 @login_required
-def Venta_V(request):
-    return render(request, 'misventas.html')
+def mis_ventas(request):
+    ventas = Ventas_M.objects.filter(vendedor=request.user)
+
+    # Filtrar por fecha
+    fecha = request.GET.get('date')
+    if fecha:
+        ventas = ventas.filter(fecha_venta__date=fecha)
+
+    # Filtrar por estado
+    estado = request.GET.get('status')
+    if estado:
+        ventas = ventas.filter(estado__iexact=estado)
+
+    # Paginación
+    page_number = request.GET.get('page')  # Obtener el número de página actual
+    paginator = Paginator(ventas, 10)  # Mostrar 10 ventas por página
+    page_obj = paginator.get_page(page_number)  # Obtener el objeto de la página actual
+
+    return render(request, 'misventas.html', {'page_obj': page_obj})
 
 @login_required
 def actualizar_estado_venta(request, venta_id):
@@ -221,6 +255,49 @@ def eliminar_del_carrito(request, servicio_id):
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
+@login_required
+def confirmar_carrito(request):
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+        servicios_en_carrito = carrito.servicios.all()
+
+        if not servicios_en_carrito:
+            messages.error(request, "Tu carrito está vacío. No puedes confirmar la compra.")
+            return redirect('ver_carrito')
+        
+        # Crear una nueva venta para cada servicio en el carrito
+        for servicio_en_carrito in ServicioEnCarrito.objects.filter(carrito=carrito):
+            servicio = servicio_en_carrito.servicio
+            cantidad = servicio_en_carrito.cantidad
+            
+            # Verificar si ya existe una compra para este servicio
+            compra_existente = Compras_M.objects.filter(servicio=servicio, comprador=request.user).first()
+            if compra_existente:
+                # Si existe, puedes actualizar el total
+                compra_existente.total += servicio.precio * cantidad
+                compra_existente.save()
+            else:
+                # Si no existe, crear una nueva compra
+                venta = Ventas_M.objects.create(
+                    vendedor=request.user,
+                    servicio=servicio,
+                    estado='En curso'
+                )
+                Compras_M.objects.create(
+                    servicio=servicio,
+                    comprador=request.user,
+                    venta=venta,
+                    total=servicio.precio * cantidad  # Calcular el total según la cantidad
+                )
+        
+        # Limpiar el carrito
+        carrito.servicios.clear()  
+        messages.success(request, "Tu compra ha sido confirmada con éxito.")
+        return render(request,'index.html')
+        
+    except Carrito.DoesNotExist:
+        messages.error(request, "No se encontró tu carrito.")
+        return redirect('ver_carrito')
 
 class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio
@@ -232,11 +309,9 @@ class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     def form_valid(self, form):
         # Asignar el usuario actual como vendedor
         form.instance.vendedor = self.request.user  # Asignar el vendedor al servicio antes de guardarlo
-        servicio = form.save()  # Guardar el servicio
-        # Crear la venta vinculada
-        Ventas_M.objects.create(servicio=servicio, vendedor=self.request.user)  
+        form.save()  # Solo guardar el servicio
         return super().form_valid(form)
-    
+
 class Modificarservicio(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Servicio
     fields = ['nombre', 'descripcion', 'tipo']
