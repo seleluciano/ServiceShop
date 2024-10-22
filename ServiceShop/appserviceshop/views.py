@@ -60,7 +60,7 @@ def Registrarusuario(request):
             username = form.cleaned_data['username']
             form.save()
             messages.success(request, "Usuario creado exitosamente :)")  # Mensaje de éxito
-            return render(request, "index.html")
+            return render(request, "iniciosesion.html")
     else:
         form = UserRegisterForm()
 
@@ -123,6 +123,7 @@ def Cambiaravatar(request):
         miFormulario = AvatarFormulario(instance=avatar)
 
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
+
 def mis_compras(request):
     compras = Compras_M.objects.all()
 
@@ -166,25 +167,32 @@ def mis_ventas(request):
         ventas = ventas.filter(estado__iexact=estado)
 
     # Paginación
-    page_number = request.GET.get('page')  # Obtener el número de página actual
-    paginator = Paginator(ventas, 10)  # Mostrar 10 ventas por página
-    page_obj = paginator.get_page(page_number)  # Obtener el objeto de la página actual
+    page_number = request.GET.get('page')
+    paginator = Paginator(ventas, 10)
+    page_obj = paginator.get_page(page_number)
 
-    return render(request, 'misventas.html', {'page_obj': page_obj})
+    return render(request, 'misventas.html', {'page_obj': page_obj, 'ventas': ventas})
 
 @login_required
 def actualizar_estado_venta(request, venta_id):
+      # Obtener la venta correspondiente y verificar que el usuario sea el vendedor
     venta = get_object_or_404(Ventas_M, id=venta_id, vendedor=request.user)
     
     if request.method == 'POST':
-        nuevo_estado = request.POST.get('estado')
+        nuevo_estado = request.POST.get('estado')  # Obtener el nuevo estado desde el formulario
         if nuevo_estado in ['En curso', 'Cancelado', 'Completado']:
             venta.estado = nuevo_estado
             venta.save()
+            messages.success(request, 'El estado de la venta ha sido actualizado exitosamente.')
         else:
             messages.error(request, 'Estado no válido.')
+
+        # Redirigir a la vista de mis ventas después de la actualización
+        return render(request, 'misventas.html')
     
-    return render(request,'misventas.html')
+    # Si no es POST, redirigir o mostrar el formulario correspondiente
+    messages.error(request, 'Método no permitido.')
+    return render(request, 'misventas.html')
 
 @login_required
 def Mispublicaciones(request):
@@ -220,28 +228,36 @@ def anadir_al_carrito(request, servicio_id):
 def ver_carrito(request):
     try:
         carrito = Carrito.objects.get(usuario=request.user)
-        servicios_en_carrito = carrito.servicios.all()  # Obtiene todos los servicios en el carrito
+        # Obtiene todos los servicios en el carrito
+        servicios_en_carrito = ServicioEnCarrito.objects.filter(carrito=carrito)  
     except Carrito.DoesNotExist:
         servicios_en_carrito = []  # Si no existe un carrito, se asigna una lista vacía
 
     # Calcular el precio total
-    total_precio = sum(servicio.precio for servicio in servicios_en_carrito)
+    total_precio = 0
+    for servicio_en_carrito in servicios_en_carrito:
+        total_precio += servicio_en_carrito.cantidad * servicio_en_carrito.servicio.precio
 
     return render(request, 'ver_carrito.html', {
         'servicios_en_carrito': servicios_en_carrito,
         'total_precio': total_precio,
     })
 
-# Vista para actualizar la cantidad del servicio en el carrito
+
+@login_required
 def actualizar_cantidad(request, servicio_id):
+    carrito = get_object_or_404(Carrito, usuario=request.user)
+    servicio_en_carrito = get_object_or_404(ServicioEnCarrito, carrito=carrito, servicio__id=servicio_id)
+
     if request.method == 'POST':
-        cantidad = int(request.POST.get('cantidad', 1))
-        carrito = Carrito.objects.get(usuario=request.user)
-        servicio = get_object_or_404(Servicio, id=servicio_id)
-        servicio_en_carrito = ServicioEnCarrito.objects.get(carrito=carrito, servicio=servicio)
-        servicio_en_carrito.cantidad = cantidad
+        nueva_cantidad = int(request.POST.get('cantidad', 1))
+        servicio_en_carrito.cantidad = nueva_cantidad
         servicio_en_carrito.save()
-        return render(request,'ver_carrito.html')
+        
+        messages.success(request, 'La cantidad del servicio ha sido actualizada.')
+        return redirect('ver_carrito')  # Redirigir a la vista del carrito
+
+    return render(request, 'actualizar_cantidad.html', {'servicio_en_carrito': servicio_en_carrito})
 
 
 # Vista para eliminar un servicio del carrito
@@ -252,53 +268,45 @@ def eliminar_del_carrito(request, servicio_id):
         ServicioEnCarrito.objects.filter(carrito=carrito, servicio=servicio).delete()
         return redirect('ver_carrito')
 
+@login_required
+def confirmar_carrito(request):
+    carrito = Carrito.objects.get(usuario=request.user)
+    total_precio = 0
+
+    for servicio_en_carrito in carrito.servicios.all():  # Cambiar esto
+        # Aquí debes obtener la relación a ServicioEnCarrito
+        servicio_en_carrito = ServicioEnCarrito.objects.get(carrito=carrito, servicio=servicio_en_carrito)
+
+        # Crear la venta
+        venta = Ventas_M.objects.create(
+            vendedor=request.user,
+            servicio=servicio_en_carrito.servicio,  # Aquí es correcto
+            cantidad=servicio_en_carrito.cantidad,
+            estado='En curso',
+            carrito=carrito  # Asociar la venta con el carrito
+        )
+
+        # Crear la compra
+        compra = Compras_M.objects.create(
+            servicio=servicio_en_carrito.servicio,
+            comprador=request.user,
+            venta=venta,
+            cantidad=servicio_en_carrito.cantidad,
+            total=servicio_en_carrito.total(),  # Calcular el total usando el método
+            carrito=carrito  # Asociar la compra con el carrito
+        )
+
+        total_precio += compra.total  # Sumar el total de cada compra
+
+    # Vaciar el carrito después de la compra
+    carrito.servicios.clear()
+
+    return render(request, 'index.html')  # Redireccionar a la página de ventas
+
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
-@login_required
-def confirmar_carrito(request):
-    try:
-        carrito = Carrito.objects.get(usuario=request.user)
-        servicios_en_carrito = carrito.servicios.all()
-
-        if not servicios_en_carrito:
-            messages.error(request, "Tu carrito está vacío. No puedes confirmar la compra.")
-            return redirect('ver_carrito')
-        
-        # Crear una nueva venta para cada servicio en el carrito
-        for servicio_en_carrito in ServicioEnCarrito.objects.filter(carrito=carrito):
-            servicio = servicio_en_carrito.servicio
-            cantidad = servicio_en_carrito.cantidad
-            
-            # Verificar si ya existe una compra para este servicio
-            compra_existente = Compras_M.objects.filter(servicio=servicio, comprador=request.user).first()
-            if compra_existente:
-                # Si existe, puedes actualizar el total
-                compra_existente.total += servicio.precio * cantidad
-                compra_existente.save()
-            else:
-                # Si no existe, crear una nueva compra
-                venta = Ventas_M.objects.create(
-                    vendedor=request.user,
-                    servicio=servicio,
-                    estado='En curso'
-                )
-                Compras_M.objects.create(
-                    servicio=servicio,
-                    comprador=request.user,
-                    venta=venta,
-                    total=servicio.precio * cantidad  # Calcular el total según la cantidad
-                )
-        
-        # Limpiar el carrito
-        carrito.servicios.clear()  
-        messages.success(request, "Tu compra ha sido confirmada con éxito.")
-        return render(request,'index.html')
-        
-    except Carrito.DoesNotExist:
-        messages.error(request, "No se encontró tu carrito.")
-        return redirect('ver_carrito')
-
+   
 class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']

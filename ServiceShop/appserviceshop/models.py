@@ -40,6 +40,22 @@ class Servicio(models.Model):
     def __str__(self):
         return self.name
 
+class Carrito(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    servicios = models.ManyToManyField(Servicio, through='ServicioEnCarrito')
+
+class ServicioEnCarrito(models.Model):
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)  # Campo para la cantidad
+
+    def __str__(self):
+        return f"{self.servicio.nombre} - Cantidad: {self.cantidad}"
+
+    def total(self):
+        return self.cantidad * self.servicio.precio  # Método para calcular el total de este servicio en el carrito
+
+
 class Ventas_M(models.Model):
     CATEGORIA_CHOICES = [
         ('En curso', 'En curso'),
@@ -48,31 +64,28 @@ class Ventas_M(models.Model):
     ]
     vendedor = models.ForeignKey(User, on_delete=models.CASCADE)
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     fecha_venta = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(
         max_length=20,
         choices=CATEGORIA_CHOICES,
-        default='En curso'  # Valor predeterminado para el estado
+        default='En curso'
     )
-    
+    cantidad = models.PositiveIntegerField(default=1)  # Campo para la cantidad de servicios comprados
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, null=True, blank=True)  # Relación con el carrito
+
     def __str__(self):
-        return f"Venta de {self.servicio.nombre} por {self.vendedor.username} - Estado: {self.estado}"
+        return f"Venta de {self.servicio.nombre} por {self.vendedor.username} - Estado: {self.estado} - Cantidad: {self.cantidad}"
 
 
 class Compras_M(models.Model):
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)  # Cambiado a ForeignKey
-    comprador = models.ForeignKey(User, on_delete=models.CASCADE)  # Cambiado a ForeignKey
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    comprador = models.ForeignKey(User, on_delete=models.CASCADE)
     fecha_compra = models.DateTimeField(auto_now_add=True)
     venta = models.ForeignKey(Ventas_M, on_delete=models.CASCADE)
     total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    cantidad = models.PositiveIntegerField(default=1)  # Campo para la cantidad de servicios comprados
+    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, null=True, blank=True)  # Relación con el carrito
 
-class Carrito(models.Model):
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
-    servicios = models.ManyToManyField(Servicio, through='ServicioEnCarrito')
-
-class ServicioEnCarrito(models.Model):
-    carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE)
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField(default=1)
-
-
+    def __str__(self):
+        return f"Compra de {self.servicio.nombre} por {self.comprador.username} - Fecha: {self.fecha_compra}, Cantidad: {self.cantidad}"

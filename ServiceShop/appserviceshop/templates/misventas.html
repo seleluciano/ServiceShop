@@ -29,9 +29,11 @@
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ venta.servicio.nombre }}</h5>
                         <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
+                        <p class="card-text"><strong>Total:</strong> ${{ venta.total }}</p>
                         <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}</p>
+                        <p class="card-text"><strong>Cantidad:</strong> {{ venta.cantidad }}</p>
                         <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
-
+                        
                         <!-- Botón desplegable para cambiar el estado -->
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ venta.id }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -61,6 +63,7 @@
                                 </li>
                             </ul>
                         </div>
+                        
                     </div>
                 </div>
             </div>

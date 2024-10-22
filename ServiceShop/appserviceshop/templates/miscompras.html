@@ -29,12 +29,13 @@
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ compra.servicio.nombre }}</h5>
                         <p class="card-text"><strong>Total:</strong> ${{ compra.total }}</p>
+                        <p class="card-text"><strong>Cantidad:</strong> {{ compra.cantidad }}</p>
                         <p class="card-text"><strong>Fecha de Compra:</strong> {{ compra.fecha_compra|date:"Y-m-d H:i:s" }}</p>
                         <p class="card-text"><strong>Estado:</strong> {{ compra.venta.estado }}</p>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
-                            <button class="btn btn-outline-dark mt-auto details-btn">Ver Detalles</button>
+                            <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' compra.servicio.id %}">Ver Detalles</a>
                             <br></br>
                             <button class="btn btn-outline-dark mt-auto download-btn">Descargar Comprobante</button>
                         </div>

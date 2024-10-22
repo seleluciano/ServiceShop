@@ -1,14 +1,28 @@
-{% extends "padre.html" %} 
-{% load static %} 
+{% extends "padre.html" %}
+{% load static %}
 {% block contenidoQueCambia %}
 {% load widget_tweaks %}
 
+<style>
+    /* Estilo para hacer que el formulario ocupe toda la pantalla */
+    .formulario {
+        max-width: 100%; /* Ancho máximo del formulario */
+    }
+    .container {
+        width: 100%; /* Ancho total del contenedor */
+    }
+    .col-md-6, .col-lg-4 {
+        max-width: 100%; /* Asegura que ocupe todo el ancho */
+        flex: 1; /* Permite que el contenedor crezca */
+    }
+</style>
+
 <div class="container mt-5 pt-5">
-    <div class="d-flex justify-content-end mb-3 "> <!-- Alinea el botón a la derecha -->
-        <a href="{% url 'mispublicaciones' %}" class="btn btn-secondary">Mis Publicaciones</a> <!-- Enlace a mis publicaciones -->
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'mispublicaciones' %}" class="btn btn-secondary">Mis Publicaciones</a>
     </div>
 
-    <div class="col-md-6 col-lg-4"> <!-- Ajusta el ancho del formulario aquí -->
+    <div class="col-12"> <!-- Cambia a col-12 para ocupar toda la fila -->
         <h2 class="text-center mb-4 mt-3">CREAR SERVICIO</h2>
 
         <form method="post" enctype="multipart/form-data" class="formulario">

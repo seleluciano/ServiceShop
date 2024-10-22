@@ -19,15 +19,13 @@ def servicios_context(request):
 
 def ventas_context(request):
     if request.user.is_authenticated:
-        # Obtiene las ventas del usuario actual
-        ventas_list = Ventas_M.objects.filter(vendedor=request.user)
+        ventas = Ventas_M.objects.filter(vendedor=request.user)
     else:
-        ventas_list = []
+        ventas = []
 
     return {
-        'ventas_list': ventas_list
+        'ventas_usuario': ventas
     }
-
 # context_processors.py
 from .models import Carrito
 

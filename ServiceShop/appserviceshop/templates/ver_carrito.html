@@ -9,21 +9,23 @@
         <!-- Lista de servicios en el carrito -->
         <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center">
             {% if servicios_en_carrito %}
-                {% for servicio in servicios_en_carrito %}
+                {% for servicio_en_carrito in servicios_en_carrito %}
                 <div class="col mb-4">
                     <div class="card h-100">
-                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}">
+                        <img class="card-img-top" src="{{ servicio_en_carrito.servicio.imagen.url }}" alt="{{ servicio_en_carrito.servicio.name }}">
                         <div class="card-body p-4">
-                            <h5 class="card-title">{{ servicio.name }}</h5>
-                            <p class="card-text"><strong>Precio:</strong> ${{ servicio.precio }}</p>
-                            <p class="card-text"><strong>Cantidad:</strong>
-                                <form method="POST" action="{% url 'actualizar_cantidad' servicio.id %}">
+                            <h5 class="card-title">{{ servicio_en_carrito.servicio.name }}</h5>
+                            <p class="card-text"><strong>Precio Unitario:</strong> ${{ servicio_en_carrito.servicio.precio|floatformat:2 }}</p>
+                            <p class="card-text">
+                                <strong>Cantidad:</strong> {{ servicio_en_carrito.cantidad }}
+                                <form method="POST" action="{% url 'actualizar_cantidad' servicio_en_carrito.servicio.id %}">
                                     {% csrf_token %}
-                                    <input type="number" name="cantidad" value="{{ servicio.servicioencarrito_set.first.cantidad }}" min="1" style="width: 60px;">
-                                    <button type="submit" class="btn btn-outline-dark mt-2">Agregar cantidad</button>
+                                    <input type="number" name="cantidad" value="{{ servicio_en_carrito.cantidad }}" min="1" style="width: 60px;">
+                                    <button type="submit" class="btn btn-outline-dark mt-2">Actualizar</button>
                                 </form>
                             </p>
-                            <form method="POST" action="{% url 'eliminar_del_carrito' servicio.id %}">
+                            
+                            <form method="POST" action="{% url 'eliminar_del_carrito' servicio_en_carrito.servicio.id %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger mt-2">Eliminar</button>
                             </form>
@@ -36,7 +38,7 @@
                 </div>
                 {% endfor %}
             </div>
-            <p class="text-center"><strong>Total: ${{ total_precio }}</strong></p>
+            <p class="text-center"><strong>Total: ${{ total_precio|floatformat:2 }}</strong></p>
             <div class="text-center">  <!-- Clase para centrar el contenido -->
                 <!-- Botón que activa el modal -->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarModal">
@@ -72,4 +74,3 @@
 </div>
 
 {% endblock %}
-
