@@ -154,14 +154,15 @@ def mis_compras(request):
 
 @login_required
 def mis_ventas(request):
+    # Obtener las ventas del usuario manualmente
     ventas = Ventas_M.objects.filter(vendedor=request.user)
 
-    # Filtrar por fecha
+    # Filtrar por fecha si se proporciona
     fecha = request.GET.get('date')
     if fecha:
         ventas = ventas.filter(fecha_venta__date=fecha)
 
-    # Filtrar por estado
+    # Filtrar por estado si se proporciona
     estado = request.GET.get('status')
     if estado:
         ventas = ventas.filter(estado__iexact=estado)
@@ -171,7 +172,8 @@ def mis_ventas(request):
     paginator = Paginator(ventas, 10)
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'misventas.html', {'page_obj': page_obj, 'ventas': ventas})
+    return render(request, 'misventas.html', {'page_obj': page_obj})
+
 
 @login_required
 def actualizar_estado_venta(request, venta_id):

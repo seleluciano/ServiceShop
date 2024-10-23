@@ -18,16 +18,10 @@ def servicios_context(request):
     return {'servicios': servicios}
 
 def ventas_context(request):
-    if request.user.is_authenticated:
-        ventas = Ventas_M.objects.filter(vendedor=request.user)
-    else:
-        ventas = []
-
+    ventas = Ventas_M.objects.filter(vendedor=request.user)
     return {
         'ventas_usuario': ventas
     }
-# context_processors.py
-from .models import Carrito
 
 def carrito_context(request):
     if request.user.is_authenticated:

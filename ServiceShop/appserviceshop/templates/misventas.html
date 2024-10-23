@@ -22,7 +22,8 @@
 
         <!-- Lista de ventas -->
         <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="venta-list">
-            {% for venta in page_obj %}
+            {% for venta in ventas_usuario %}
+
             <div class="col mb-4">
                 <div class="card h-100">
                     <img class="card-img-top" src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
