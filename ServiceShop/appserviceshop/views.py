@@ -317,7 +317,16 @@ def confirmar_carrito(request):
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
-   
+
+class Detallecompra(LoginRequiredMixin, DetailView):
+    model = Compras_M
+    template_name = "compra_detalle.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Añade cualquier otra información al contexto si es necesario
+        return context
+    
 class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']

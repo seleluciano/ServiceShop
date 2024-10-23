@@ -15,6 +15,9 @@
     <!-- Full-width section for the service-->
     <section class="py-5">
         <div class="container px-4 px-lg-5 mt-5">
+            <div class="container mt-5">
+                <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
+            </div>
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 mb-5">
                     <div class="card h-100">
@@ -31,7 +34,9 @@
 
                                 <!-- Separator line -->
                                 <hr>
-
+                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
+                                    <strong>Vendido por:</strong> {{ servicio.vendedor.first_name }}  {{ servicio.vendedor.last_name }}
+                                </p>
                                 <!-- Product description -->
                                 <p class="text-left" style="font-size: 1rem; color: #6c757d; line-height: 1.6;">
                                     {{ servicio.descripcion }}
