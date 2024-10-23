@@ -36,7 +36,10 @@
                     </div>
                     <!-- Acciones -->
                     <div>
-                        <a href="{% url 'Delete' servicio.id %}" class="btn btn-outline-primary mt-auto">Eliminar</a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal" 
+                                data-id="{{ servicio.id }}" data-url="{% url 'Delete' servicio.id %}">
+                            Eliminar
+                        </button>
                         <a href="{% url 'Edit' servicio.id %}" class="btn btn-outline-primary mt-auto">Modificar</a>
                     </div>
                 </div>
@@ -47,5 +50,42 @@
         </div>
     </div>
 </section>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="eliminarModal" tabindex="-1" aria-labelledby="eliminarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eliminarModalLabel">Confirmación de Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿¿Estás seguro de eliminar el servicio??
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <!-- Formulario para eliminar el servicio -->
+                <form method="POST" id="formEliminar" class="formulario">
+                    {% csrf_token %}
+                    <input type="submit" value="Eliminar" class="btn btn-danger" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Script para manejar el modal de eliminación
+    const eliminarModal = document.getElementById('eliminarModal');
+    eliminarModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Botón que activó el modal
+        const servicioId = button.getAttribute('data-id'); // Extraer el ID del servicio
+        const url = button.getAttribute('data-url'); // Extraer la URL para eliminar
+
+        // Actualizar el formulario de eliminación con la URL correcta
+        const form = document.getElementById('formEliminar');
+        form.action = url;
+    });
+</script>
 
 {% endblock %}

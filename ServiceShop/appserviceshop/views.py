@@ -333,13 +333,13 @@ class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
 
 class Modificarservicio(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     model = Servicio
-    fields = ['nombre', 'descripcion', 'tipo']
-    success_url = '/appserviceshop/misventas'
+    fields = ['name', 'descripcion', 'categoria', 'precio', 'zona', 'disponibilidadhoraria', 'imagen']
+    success_url = '/appserviceshop/mispublicaciones'  # Asegúrate de que esta URL sea correcta
     template_name = "servicio_form.html"
-    success_message = "Servicio modificado correctamente."  # Mensaje de éxito
+    success_message = "Servicio modificado correctamente."
 
 class Eliminarservicio(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Servicio
     template_name = "servicio_confirm_delete.html"
-    success_url = '/appserviceshop/misventas'
+    success_url = '/appserviceshop/mispublicaciones'
     success_message = "Servicio eliminado correctamente."  # Mensaje de éxito

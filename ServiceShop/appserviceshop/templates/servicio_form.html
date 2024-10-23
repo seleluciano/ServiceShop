@@ -1,74 +1,55 @@
 {% extends "padre.html" %}
 {% load static %}
+
 {% block contenidoQueCambia %}
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ servicio.name }}</title>
-</head>
-
-<body>
-    <!-- Full-width section for the service-->
-    <section class="py-5">
-        <div class="container px-4 px-lg-5 mt-5">
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-8 mb-5">
-                    <div class="card h-100">
-                        <!-- Product image (adjust size for a smaller view) -->
-                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" style="max-height: 300px; object-fit: contain; width: 100%;" />
-                        
-                        <!-- Product details -->
-                        <div class="card-body p-4">
-                            <div>
-                                <!-- Product name -->
-                                <h5 class="text-center" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">
-                                    {{ servicio.name }}
-                                </h5>
-
-                                <!-- Separator line -->
-                                <hr>
-
-                                <!-- Product description -->
-                                <p class="text-left" style="font-size: 1rem; color: #6c757d; line-height: 1.6;">
-                                    {{ servicio.descripcion }}
-                                </p>
-
-                                <!-- Separator line -->
-                                <hr>
-
-                                <!-- Product category, zone, availability and price-->
-                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                    <strong>Categoría:</strong> {{ servicio.categoria }}
-                                </p>
-                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                    <strong>Zona:</strong> {{ servicio.zona }}
-                                </p>
-                                <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                    <strong>Disponibilidad:</strong> {{ servicio.disponibilidadhoraria }}
-                                </p>
-                                <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">
-                                    Precio: ${{ servicio.precio }}
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <!-- Product actions-->
-                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center">
-                                <a class="btn btn-outline-dark mt-auto" href="{% url 'carrito' %}">Añadir al carrito</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <h2>Modificar Servicio</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="name" value="{{ form.instance.name }}" required>
             </div>
-        </div>
-    </section>
-</body>
-
-</html>
-
+            <div class="mb-3">
+                <label for="categoria" class="form-label">Categoría</label>
+                <select class="form-control" id="categoria" name="categoria" required>
+                    {% for key, value in form.categoria.field.choices %}
+                        <option value="{{ key }}" {% if key == form.instance.categoria %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="zona" class="form-label">Zona</label>
+                <select class="form-control" id="zona" name="zona" required>
+                    {% for key, value in form.zona.field.choices %}
+                        <option value="{{ key }}" {% if key == form.instance.zona %}selected{% endif %}>
+                            {{ value }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="precio" class="form-label">Precio</label>
+                <input type="number" class="form-control" id="precio" name="precio" value="{{ form.instance.precio }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required>{{ form.instance.descripcion }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="disponibilidadhoraria" class="form-label">Disponibilidad Horaria</label>
+                <input type="text" class="form-control" id="disponibilidadhoraria" name="disponibilidadhoraria" value="{{ form.instance.disponibilidadhoraria }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="imagen" class="form-label">Imagen</label>
+                <input type="file" class="form-control" id="imagen" name="imagen">
+            </div>
+            <button type="submit" class="btn btn-primary">Modificar</button>
+        </form>
+    </div>
+</section>
 {% endblock %}
+
