@@ -1,75 +1,49 @@
-{% extends 'padre.html' %}
+{% extends "padre.html" %}
+{% load static %}
 
 {% block contenidoQueCambia %}
-<!-- Section -->
+
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
-        <div class="container mt-5">
-            <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
-        </div>
-        <h1 style="text-align: center; margin-bottom: 25px;">Tu Carrito</h1>
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6 mb-5">
+                <div class="card h-100 text-center">
+                    <!-- Cuerpo del card -->
+                    <div class="card-body p-4">
+                        <div>
+                            <h5 class="text-center" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">
+                                Eliminar Servicio
+                            </h5>
 
-        <!-- Lista de servicios en el carrito -->
-        <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center">
-            {% if servicios_en_carrito %}
-                {% for servicio_en_carrito in servicios_en_carrito %}
-                <div class="col mb-4">
-                    <div class="card h-100">
-                        <img class="card-img-top" src="{{ servicio_en_carrito.servicio.imagen.url }}" alt="{{ servicio_en_carrito.servicio.name }}">
-                        <div class="card-body p-4">
-                            <h5 class="card-title">{{ servicio_en_carrito.servicio.name }}</h5>
-                            <p class="card-text"><strong>Precio Unitario:</strong> ${{ servicio_en_carrito.servicio.precio|floatformat:2 }}</p>
-                            <p class="card-text">
-                                <strong>Cantidad:</strong> {{ servicio_en_carrito.cantidad }}
-                                <form method="POST" action="{% url 'actualizar_cantidad' servicio_en_carrito.servicio.id %}">
-                                    {% csrf_token %}
-                                    <input type="number" name="cantidad" value="{{ servicio_en_carrito.cantidad }}" min="1" style="width: 60px;">
-                                    <button type="submit" class="btn btn-outline-dark mt-2">Actualizar</button>
-                                </form>
-                            </p>
-                            
-                            <form method="POST" action="{% url 'eliminar_del_carrito' servicio_en_carrito.servicio.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-danger mt-2">Eliminar</button>
-                            </form>
+                            <!-- Botón que activa el modal -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+                                Eliminar
+                            </button>
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div id="no-servicios" class="no-servicios col-12">
-                    <p>No hay servicios en tu carrito.</p>
-                </div>
-                {% endfor %}
             </div>
-            <p class="text-center"><strong>Total: ${{ total_precio|floatformat:2 }}</strong></p>
-            <div class="text-center">  <!-- Clase para centrar el contenido -->
-                <!-- Botón que activa el modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmarModal">
-                    Confirmar Compra
-                </button>
-            </div>
-        {% else %}
-            <p class="text-center">Tu carrito está vacío.</p>
-        {% endif %}
+        </div>
     </div>
 </section>
 
-<!-- Modal de confirmación -->
-<div class="modal fade" id="confirmarModal" tabindex="-1" aria-labelledby="confirmarModalLabel" aria-hidden="true">
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="eliminarModal" tabindex="-1" aria-labelledby="eliminarModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="confirmarModalLabel">Confirmación de Compra</h5>
+                <h5 class="modal-title" id="eliminarModalLabel">Confirmación de Eliminación</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                ¿Estás seguro que deseas confirmar la compra?
+                ¿¿Estás seguro de eliminar el servicio??
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <form method="POST" action="{% url 'confirmar_carrito' %}" id="confirmarCompraForm">
+                <!-- Formulario para eliminar el servicio -->
+                <form method="POST" class="formulario" action="{% url 'eliminar_servicio' servicio.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Confirmar Compra</button>
+                    <input type="submit" value="Eliminar" class="btn btn-danger" />
                 </form>
             </div>
         </div>
@@ -77,3 +51,4 @@
 </div>
 
 {% endblock %}
+
