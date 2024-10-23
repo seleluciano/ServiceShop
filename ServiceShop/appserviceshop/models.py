@@ -17,6 +17,10 @@ class Servicio(models.Model):
         ('Educacion', 'Educación'),
         ('Salud', 'Salud'),
         ('Alimentacion', 'Alimentación'),
+        ('Servicios de Reparación y Mantenimiento', 'Servicios de Reparación y Mantenimiento'),
+        ('Consultoría y Servicios Profesionales', 'Consultoría y Servicios Profesionales'),
+        ('Belleza y Cuidado Personal', 'Belleza y Cuidado Personal'),
+        (' Arte y Publicidad', ' Arte y Publicidad'),
     ]
     
     ZONA_CHOICES = [
@@ -27,7 +31,7 @@ class Servicio(models.Model):
     ]
 
     name = models.CharField(max_length=100)  # Nombre del servicio
-    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES)  # Categoría
+    categoria = models.CharField(max_length=50, choices=CATEGORIA_CHOICES)  # Categoría
     precio = models.DecimalField(max_digits=10, decimal_places=2)  # Precio del servicio
     zona = models.CharField(max_length=20, choices=ZONA_CHOICES)  # Zona
     descripcion = models.TextField()  # Descripción del servicio
@@ -76,7 +80,6 @@ class Ventas_M(models.Model):
 
     def __str__(self):
         return f"Venta de {self.servicio.nombre} por {self.vendedor.username} - Estado: {self.estado} - Cantidad: {self.cantidad}"
-
 
 class Compras_M(models.Model):
     servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE)

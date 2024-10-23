@@ -18,10 +18,15 @@ def servicios_context(request):
     return {'servicios': servicios}
 
 def ventas_context(request):
-    ventas = Ventas_M.objects.filter(vendedor=request.user)
+    if request.user.is_authenticated:
+        ventas = Ventas_M.objects.filter(vendedor=request.user)
+    else:
+        ventas = Ventas_M.objects.none()  # Devuelve un queryset vacío si el usuario no está autenticado
+    
     return {
         'ventas_usuario': ventas
     }
+
 
 def carrito_context(request):
     if request.user.is_authenticated:

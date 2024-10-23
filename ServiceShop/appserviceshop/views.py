@@ -223,7 +223,7 @@ def anadir_al_carrito(request, servicio_id):
         messages.success(request, f"Se ha añadido '{servicio.name}' al carrito.")
 
     # Redirige a la vista del carrito después de añadir el servicio
-    return redirect('ver_carrito')  # Redirigir a ver el carrito
+    return redirect('ver_carrito')  
 
 
 @login_required
@@ -263,6 +263,7 @@ def actualizar_cantidad(request, servicio_id):
 
 
 # Vista para eliminar un servicio del carrito
+@login_required
 def eliminar_del_carrito(request, servicio_id):
     if request.method == 'POST':
         carrito = Carrito.objects.get(usuario=request.user)
@@ -272,38 +273,46 @@ def eliminar_del_carrito(request, servicio_id):
 
 @login_required
 def confirmar_carrito(request):
-    carrito = Carrito.objects.get(usuario=request.user)
-    total_precio = 0
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+        total_precio = 0
 
-    for servicio_en_carrito in carrito.servicios.all():  # Cambiar esto
-        # Aquí debes obtener la relación a ServicioEnCarrito
-        servicio_en_carrito = ServicioEnCarrito.objects.get(carrito=carrito, servicio=servicio_en_carrito)
+        # Recorrer los servicios en el carrito
+        for servicio_en_carrito in ServicioEnCarrito.objects.filter(carrito=carrito):
+            # Crear la venta
+            venta = Ventas_M.objects.create(
+                vendedor=request.user,
+                servicio=servicio_en_carrito.servicio,
+                cantidad=servicio_en_carrito.cantidad,
+                total=servicio_en_carrito.cantidad * servicio_en_carrito.servicio.precio,
+                estado='En curso',
+                carrito=carrito
+            )
 
-        # Crear la venta
-        venta = Ventas_M.objects.create(
-            vendedor=request.user,
-            servicio=servicio_en_carrito.servicio,  # Aquí es correcto
-            cantidad=servicio_en_carrito.cantidad,
-            estado='En curso',
-            carrito=carrito  # Asociar la venta con el carrito
-        )
+            # Crear la compra
+            compra = Compras_M.objects.create(
+                servicio=servicio_en_carrito.servicio,
+                comprador=request.user,
+                venta=venta,
+                cantidad=servicio_en_carrito.cantidad,
+                total=servicio_en_carrito.cantidad * servicio_en_carrito.servicio.precio,
+                carrito=carrito
+            )
 
-        # Crear la compra
-        compra = Compras_M.objects.create(
-            servicio=servicio_en_carrito.servicio,
-            comprador=request.user,
-            venta=venta,
-            cantidad=servicio_en_carrito.cantidad,
-            total=servicio_en_carrito.total(),  # Calcular el total usando el método
-            carrito=carrito  # Asociar la compra con el carrito
-        )
+            total_precio += compra.total  # Sumar el total de la compra
 
-        total_precio += compra.total  # Sumar el total de cada compra
+        # Vaciar el carrito después de confirmar la compra
+        carrito.servicios.clear()
 
-    # Vaciar el carrito después de la compra
-    carrito.servicios.clear()
+        # Agregar un mensaje de éxito
+        messages.success(request, f"La compra ha sido confirmada ")
+        
+        return redirect('inicio')  # Redirigir a la página principal
 
-    return render(request, 'index.html')  # Redireccionar a la página de ventas
+    except Carrito.DoesNotExist:
+        # Manejar el caso de que el carrito no exista
+        messages.error(request, "No tienes un carrito activo.")
+        return redirect('index')  # Redirigir a la página principal en caso de error
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio

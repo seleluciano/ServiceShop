@@ -8,6 +8,9 @@
 
         <!-- Filtros -->
         <div class="filters mb-4">
+            <div class="container mt-5">
+                <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
+            </div>
             <form method="GET" action="{% url 'miscompras' %}">
                 <input type="date" id="filter-date" name="date" class="form-control" placeholder="Filtrar por fecha">
                 <select id="filter-status" name="status" class="form-control mt-2">
