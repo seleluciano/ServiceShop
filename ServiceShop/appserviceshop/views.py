@@ -125,7 +125,7 @@ def Cambiaravatar(request):
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
 def mis_compras(request):
-    compras = Compras_M.objects.all()
+    compras = Compras_M.objects.filter(comprador=request.user)
 
     # Filtrar por fecha
     fecha = request.GET.get('date')
@@ -279,9 +279,10 @@ def confirmar_carrito(request):
 
         # Recorrer los servicios en el carrito
         for servicio_en_carrito in ServicioEnCarrito.objects.filter(carrito=carrito):
+            vendedor_servicio=servicio_en_carrito.servicio.vendedor
             # Crear la venta
             venta = Ventas_M.objects.create(
-                vendedor=request.user,
+                vendedor=vendedor_servicio,
                 servicio=servicio_en_carrito.servicio,
                 cantidad=servicio_en_carrito.cantidad,
                 total=servicio_en_carrito.cantidad * servicio_en_carrito.servicio.precio,
