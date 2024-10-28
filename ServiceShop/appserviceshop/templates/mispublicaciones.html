@@ -74,18 +74,6 @@
     </div>
 </div>
 
-<script>
-    // Script para manejar el modal de eliminación
-    const eliminarModal = document.getElementById('eliminarModal');
-    eliminarModal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget; // Botón que activó el modal
-        const servicioId = button.getAttribute('data-id'); // Extraer el ID del servicio
-        const url = button.getAttribute('data-url'); // Extraer la URL para eliminar
 
-        // Actualizar el formulario de eliminación con la URL correcta
-        const form = document.getElementById('formEliminar');
-        form.action = url;
-    });
-</script>
 
 {% endblock %}

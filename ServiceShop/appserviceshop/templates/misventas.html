@@ -4,70 +4,90 @@
 <!-- Section -->
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
-        <div class="container mt-5">
-            <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
-        </div>
         <h1 style="text-align: center; margin-bottom: 25px;">Mis Ventas</h1>
 
         <!-- Filtros -->
         <div class="filters mb-4">
-            <form method="GET" action="{% url 'misventas' %}">
-                <input type="date" id="filter-date" name="date" class="form-control" placeholder="Filtrar por fecha">
-                <select id="filter-status" name="status" class="form-control mt-2">
-                    <option value="">Filtrar por estado</option>
-                    <option value="En curso">En curso</option>
-                    <option value="Cancelado">Cancelado</option>
-                    <option value="Completado">Completado</option>
-                </select>
-                <button type="submit" class="btn btn-primary mt-2">Aplicar Filtros</button>
-            </form>
+            <div class="container mt-5">
+                <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
+                <button class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#filterModal">FILTRAR</button>
+            </div>
+        </div>
+
+        <!-- Modal de Filtros -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">Filtrar Ventas</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="GET" action="{% url 'misventas' %}">
+                            <div class="mb-3">
+                                <label for="filter-date" class="form-label">Filtrar por fecha</label>
+                                <input type="date" id="filter-date" name="date" class="form-control" value="{{ request.GET.date }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-status" class="form-label">Filtrar por estado</label>
+                                <select id="filter-status" name="status" class="form-select">
+                                    <option value="">Seleccione un estado</option>
+                                    <option value="En curso" {% if request.GET.status == "En curso" %}selected{% endif %}>En curso</option>
+                                    <option value="Cancelado" {% if request.GET.status == "Cancelado" %}selected{% endif %}>Cancelado</option>
+                                    <option value="Completado" {% if request.GET.status == "Completado" %}selected{% endif %}>Completado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-service" class="form-label">Filtrar por nombre de servicio</label>
+                                <input type="text" id="filter-service" name="service" class="form-control" placeholder="Escribe el tipo de servicio">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Lista de ventas -->
         <div class="row gx-4 gx-lg-5 row-cols-1 row-cols-md-2 row-cols-xl-3 justify-content-center" id="venta-list">
-            {% for venta in ventas_usuario %}
-
+            {% for venta in page_obj %}
             <div class="col mb-4">
                 <div class="card h-100">
                     <img class="card-img-top" src="{{ venta.servicio.imagen.url }}" alt="{{ venta.servicio.nombre }}">
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ venta.servicio.nombre }}</h5>
+                        <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                            comprado por: <span style="font-weight: 500;">{{ venta.carrito.usuario.first_name }} {{ venta.carrito.usuario.last_name }}</span>
+                        </p>
+                        
                         <p class="card-text"><strong>Precio:</strong> ${{ venta.servicio.precio }}</p>
                         <p class="card-text"><strong>Total:</strong> ${{ venta.total }}</p>
                         <p class="card-text"><strong>Fecha de Venta:</strong> {{ venta.fecha_venta|date:"Y-m-d H:i:s" }}</p>
                         <p class="card-text"><strong>Cantidad:</strong> {{ venta.cantidad }}</p>
                         <p class="card-text"><strong>Estado:</strong> {{ venta.estado }}</p>
-                        
-                        <!-- Botón desplegable para cambiar el estado -->
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ venta.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                Cambiar Estado
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ venta.id }}">
-                                <li>
-                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="En curso">
-                                        <button class="dropdown-item" type="submit">En curso</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="Cancelado">
-                                        <button class="dropdown-item" type="submit">Cancelado</button>
-                                    </form>
-                                </li>
-                                <li>
-                                    <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="estado" value="Completado">
-                                        <button class="dropdown-item" type="submit">Completado</button>
-                                    </form>
-                                </li>
-                            </ul>
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                        <div class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ venta.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Cambiar Estado
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ venta.id }}">
+                                    {% for estado in "En curso,Cancelado,Completado" %}
+                                    <li>
+                                        <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="estado" value="{{ estado }}">
+                                            <button class="dropdown-item" type="submit">{{ estado }}</button>
+                                        </form>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
-                        
                     </div>
                 </div>
             </div>

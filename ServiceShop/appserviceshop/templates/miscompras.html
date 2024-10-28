@@ -10,17 +10,44 @@
         <div class="filters mb-4">
             <div class="container mt-5">
                 <a href="{% url 'inicio' %}" class="btn btn-secondary ms-3">Volver</a>
+                <button class="btn btn-primary ms-3" data-bs-toggle="modal" data-bs-target="#filterModal">FILTRAR</button>
             </div>
-            <form method="GET" action="{% url 'miscompras' %}">
-                <input type="date" id="filter-date" name="date" class="form-control" placeholder="Filtrar por fecha">
-                <select id="filter-status" name="status" class="form-control mt-2">
-                    <option value="">Filtrar por estado</option>
-                    <option value="completado">Completado</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
-                <input type="text" id="filter-service" name="service" class="form-control mt-2" placeholder="Filtrar por tipo de servicio">
-                <button type="submit" class="btn btn-primary mt-2">Aplicar Filtros</button>
-            </form>
+        </div>
+
+        <!-- Modal de Filtros -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">Filtrar Compras</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="GET" action="{% url 'miscompras' %}">
+                            <div class="mb-3">
+                                <label for="filter-date" class="form-label">Filtrar por fecha</label>
+                                <input type="date" id="filter-date" name="date" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-status" class="form-label">Filtrar por estado</label>
+                                <select id="filter-status" name="status" class="form-select">
+                                    <option value="">Seleccione un estado</option>
+                                    <option value="completado">Completado</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="filter-service" class="form-label">Filtrar por nombre de servicio</label>
+                                <input type="text" id="filter-service" name="service" class="form-control" placeholder="Escribe el tipo de servicio">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Lista de compras -->
@@ -31,6 +58,9 @@
                     <img class="card-img-top" src="{{ compra.servicio.imagen.url }}" alt="{{ compra.servicio.nombre }}">
                     <div class="card-body p-4">
                         <h5 class="card-title">{{ compra.servicio.nombre }}</h5>
+                        <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
+                            Vendido por: <span style="font-weight: 500;">{{ compra.venta.vendedor.first_name }} {{ compra.venta.vendedor.last_name }}</span>
+                        </p>
                         <p class="card-text"><strong>Total:</strong> ${{ compra.total }}</p>
                         <p class="card-text"><strong>Cantidad:</strong> {{ compra.cantidad }}</p>
                         <p class="card-text"><strong>Fecha de Compra:</strong> {{ compra.fecha_compra|date:"Y-m-d H:i:s" }}</p>
@@ -39,8 +69,8 @@
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                         <div class="text-center">
                             <a class="btn btn-outline-dark mt-auto" href="{% url 'Detailcompra' compra.id %}">Ver Detalles</a>
-                            <br></br>
-                            <button class="btn btn-outline-dark mt-auto download-btn">Descargar Comprobante</button>
+                            <br><br>
+                            <button class="btn btn-outline-dark mt-auto download-btn" data-bs-toggle="modal" data-bs-target="#downloadModal" data-id="{{ compra.id }}">Descargar Comprobante</button>
                         </div>
                     </div>
                 </div>
@@ -50,6 +80,25 @@
                 <p>No Existen Compras en el Historial.</p>
             </div>
             {% endfor %}
+        </div>
+
+        <!-- Modal de Descarga -->
+        <div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="downloadModalLabel">Descargar Comprobante</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas descargar el comprobante de esta compra?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a id="confirm-download" href="#" class="btn btn-primary">Descargar</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Paginación -->
@@ -68,5 +117,19 @@
         </div>
     </div>
 </section>
+
+{% block scripts %}
+<script>
+    // Agregar el comportamiento al botón de descarga
+    const downloadButtons = document.querySelectorAll('.download-btn');
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const compraId = this.getAttribute('data-id');
+            const downloadLink = `/descargar-comprobante/${compraId}/`; // Cambia esto según tu URL de descarga
+            document.getElementById('confirm-download').setAttribute('href', downloadLink);
+        });
+    });
+</script>
+{% endblock %}
 
 {% endblock %}

@@ -125,6 +125,7 @@ def Cambiaravatar(request):
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
 def mis_compras(request):
+    # Obtener todas las compras del usuario actual
     compras = Compras_M.objects.filter(comprador=request.user)
 
     # Filtrar por fecha
@@ -135,22 +136,30 @@ def mis_compras(request):
     # Filtrar por estado
     estado = request.GET.get('status')
     if estado:
-        # Asegúrate de que el estado se compara correctamente
         compras = compras.filter(venta__estado__iexact=estado)
 
     # Filtrar por nombre de servicio
     servicio = request.GET.get('service')
     if servicio:
-        compras = compras.filter(servicio__nombre__icontains=servicio)
+        compras = compras.filter(servicio__name__icontains=servicio)
+
+    # Asegúrate de que la consulta esté ordenada antes de paginar
+    compras = compras.order_by('-fecha_compra')  # Ordenar por fecha de compra de más reciente a más antiguo
 
     # Paginación
     page_number = request.GET.get('page')  # Obtener el número de página actual
     paginator = Paginator(compras, 10)  # Mostrar 10 compras por página
     page_obj = paginator.get_page(page_number)  # Obtener el objeto de la página actual
 
-    return render(request, 'miscompras.html', {'page_obj': page_obj})
+    # Contexto para la plantilla
+    context = {
+        'page_obj': page_obj,
+        'fecha': fecha,  # Pasar la fecha actual para que se mantenga en el filtro
+        'estado': estado,  # Pasar el estado actual para que se mantenga en el filtro
+        'servicio': servicio,  # Pasar el servicio actual para que se mantenga en el filtro
+    }
 
-
+    return render(request, 'miscompras.html', context)
 
 @login_required
 def mis_ventas(request):
@@ -166,6 +175,11 @@ def mis_ventas(request):
     estado = request.GET.get('status')
     if estado:
         ventas = ventas.filter(estado__iexact=estado)
+
+    # Filtrar por nombre de servicio
+    servicio = request.GET.get('service')
+    if servicio:
+        ventas = ventas.filter(servicio__name__icontains=servicio)  # Asegúrate de que el campo sea correcto
 
     # Paginación
     page_number = request.GET.get('page')
@@ -314,7 +328,32 @@ def confirmar_carrito(request):
         # Manejar el caso de que el carrito no exista
         messages.error(request, "No tienes un carrito activo.")
         return redirect('index')  # Redirigir a la página principal en caso de error
+    
+def filtrar_servicios(request):
+    servicios = Servicio.objects.all()  # Obtén todos los servicios inicialmente
 
+    # Filtrado basado en los parámetros del formulario
+    categoria = request.GET.get('categoria')
+    precio_min = request.GET.get('precio-min')
+    precio_max = request.GET.get('precio-max')
+    zona = request.GET.get('zona')
+    disponibilidad = request.GET.get('disponibilidad')
+    calificacion = request.GET.get('calificacion')
+
+    if categoria:
+        servicios = servicios.filter(categoria=categoria)
+    if precio_min:
+        servicios = servicios.filter(precio__gte=precio_min)
+    if precio_max:
+        servicios = servicios.filter(precio__lte=precio_max)
+    if zona:
+        servicios = servicios.filter(zona=zona)
+    if disponibilidad:
+        servicios = servicios.filter(disponibilidad_horaria__icontains=disponibilidad)
+    if calificacion:
+        servicios = servicios.filter(calificacion__gte=calificacion)
+
+    return render(request, 'filtrar_servicios.html', {'servicios': servicios})
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
