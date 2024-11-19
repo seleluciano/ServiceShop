@@ -23,8 +23,7 @@ urlpatterns = [
      path('carrito/confirmar/', views.confirmar_carrito, name='confirmar_carrito'),
      path('compras/<int:pk>/', views.Detallecompra.as_view(), name='Detailcompra'),
      path('servicios/', views.filtrar_servicios, name='filtrar_servicios'),
+     path('user/<int:user_id>/rate/', views.rate_user, name='rate_user'),
+     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
 
-
-
-] 
-
+]

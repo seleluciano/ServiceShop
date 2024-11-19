@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Valorar a {{ rated_user.username }}</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Enviar valoración</button>
+</form>
+<a href="{% url 'user_detail' rated_user.id %}">Volver</a>
+{% endblock %}

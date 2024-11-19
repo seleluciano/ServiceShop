@@ -684,3 +684,25 @@ def borrar_resena_compra(request, reseña_id):
     reseña.delete()
     messages.success(request, "Se ha borrado tu reseña")
     return redirect('micompras', servicio_id=servicio_id)
+
+
+@login_required
+def rate_user(request, user_id):
+    rated_user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.rater = request.user
+            rating.rated = rated_user
+            rating.save()
+            return redirect('user_detail', user_id=rated_user.id)
+    else:
+        form = RatingForm()
+    return render(request, 'rate_user.html', {'form': form, 'rated_user': rated_user})
+
+@login_required
+def user_detail(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    ratings = user.received_ratings.all()
+    return render(request, 'user_detail.html', {'user': user, 'ratings': ratings})
