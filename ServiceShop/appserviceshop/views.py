@@ -26,6 +26,11 @@ from .forms import ReseñaForm
 from .models import Servicio, Reseña
 from django.shortcuts import render, get_object_or_404
 from .models import Compras_M, Reseña, Servicio
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .models import Rating
+from .forms import RatingForm
 
 
 @login_required
