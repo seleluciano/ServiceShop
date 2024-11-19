@@ -37,12 +37,12 @@
                         <a class="nav-link active" aria-current="page" href="{% url 'inicio' %}">Inicio</a>
                     </li>
                     <li class="nav-item">
-                        <form class="d-flex mx-3" style="max-width: 400px;">
-                            <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search">
+                        <form class="d-flex mx-3" style="max-width: 400px;" method="get" action="{% url 'buscar_servicios' %}">
+                            <input class="form-control me-2" type="search" name="q" placeholder="Buscar" aria-label="Search">
                             <button class="btn btn-outline-light" type="submit">
                                 <i class="bi-search"></i>
                             </button>
-                        </form>
+                        </form>                        
                     </li>
                     <li class="nav-item">
                         <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#filtrosModal">Filtrar</button>
