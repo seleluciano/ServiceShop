@@ -275,8 +275,6 @@ def actualizar_cantidad(request, servicio_id):
 
     return render(request, 'actualizar_cantidad.html', {'servicio_en_carrito': servicio_en_carrito})
 
-
-# Vista para eliminar un servicio del carrito
 @login_required
 def eliminar_del_carrito(request, servicio_id):
     if request.method == 'POST':
@@ -354,6 +352,18 @@ def filtrar_servicios(request):
         servicios = servicios.filter(calificacion__gte=calificacion)
 
     return render(request, 'filtrar_servicios.html', {'servicios': servicios})
+
+def buscar_servicios(request):
+    query = request.GET.get('q', '')  # Obtén el término de búsqueda
+    if query:
+        servicios = Servicio.objects.filter(name__icontains=query)  # Filtra servicios por nombre
+    else:
+        servicios = Servicio.objects.all()  # Si no hay término, muestra todos
+    context = {
+        'servicios': servicios,
+    }
+    return render(request, 'index.html', context)
+
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
    template_name="servicio_detalle.html"
@@ -392,15 +402,3 @@ class Eliminarservicio(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = "servicio_confirm_delete.html"
     success_url = '/appserviceshop/mispublicaciones'
     success_message = "Servicio eliminado correctamente."  # Mensaje de éxito
-
-
-def buscar_servicios(request):
-    query = request.GET.get('q', '')  # Obtén el término de búsqueda
-    if query:
-        servicios = Servicio.objects.filter(name__icontains=query)  # Filtra servicios por nombre
-    else:
-        servicios = Servicio.objects.all()  # Si no hay término, muestra todos
-    context = {
-        'servicios': servicios,
-    }
-    return render(request, 'index.html', context)
