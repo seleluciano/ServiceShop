@@ -20,7 +20,6 @@ from .models import *
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import update_session_auth_hash
 
-
 @login_required
 def Inicio(request):
     servicios = Servicio.objects.all()  # Ejemplo, ajusta según tu modelo
@@ -30,7 +29,6 @@ def Inicio(request):
 def Logout(request):
     logout(request)
     return render(request, 'cerrarsesion.html')
-
 
 def Iniciosesion(request):
     if request.method == 'POST':
@@ -188,7 +186,6 @@ def mis_ventas(request):
 
     return render(request, 'misventas.html', {'page_obj': page_obj})
 
-
 @login_required
 def actualizar_estado_venta(request, venta_id):
       # Obtener la venta correspondiente y verificar que el usuario sea el vendedor
@@ -239,7 +236,6 @@ def anadir_al_carrito(request, servicio_id):
     # Redirige a la vista del carrito después de añadir el servicio
     return redirect('ver_carrito')  
 
-
 @login_required
 def ver_carrito(request):
     try:
@@ -258,7 +254,6 @@ def ver_carrito(request):
         'servicios_en_carrito': servicios_en_carrito,
         'total_precio': total_precio,
     })
-
 
 @login_required
 def actualizar_cantidad(request, servicio_id):
@@ -354,6 +349,7 @@ def filtrar_servicios(request):
     return render(request, 'filtrar_servicios.html', {'servicios': servicios})
 
 def buscar_servicios(request):
+
     query = request.GET.get('q', '')  # Obtén el término de búsqueda
     if query:
         servicios = Servicio.objects.filter(name__icontains=query)  # Filtra servicios por nombre
@@ -363,6 +359,7 @@ def buscar_servicios(request):
         'servicios': servicios,
     }
     return render(request, 'index.html', context)
+
 
 class Detalleservicio(LoginRequiredMixin,DetailView):
    model=Servicio
