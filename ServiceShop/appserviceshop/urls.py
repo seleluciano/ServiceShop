@@ -15,7 +15,7 @@ urlpatterns = [
      path('<int:pk>', views.Detalleservicio.as_view(), name="Detail"),
      path('editar/<int:pk>', views.Modificarservicio.as_view(), name="Edit"),
      path('borrar/<int:pk>', views.Eliminarservicio.as_view(), name="Delete"),
-    path('ventas/actualizar_estado/<int:venta_id>/', views.actualizar_estado_venta, name='actualizar_estado_venta'),
+     path('ventas/actualizar_estado/<int:venta_id>/', views.actualizar_estado_venta, name='actualizar_estado_venta'),
      path('carrito/anadir/<int:servicio_id>/', views.anadir_al_carrito, name='anadir_al_carrito'),
      path('carrito/', views.ver_carrito, name='ver_carrito'),
      path('carrito/actualizar/<int:servicio_id>/', views.actualizar_cantidad, name='actualizar_cantidad'),
@@ -23,7 +23,7 @@ urlpatterns = [
      path('carrito/confirmar/', views.confirmar_carrito, name='confirmar_carrito'),
      path('compras/<int:pk>/', views.Detallecompra.as_view(), name='Detailcompra'),
      path('servicios/', views.filtrar_servicios, name='filtrar_servicios'),
-
+     path('buscar/', views.buscar_servicios, name='buscar_servicios'),
 
 
 ] 

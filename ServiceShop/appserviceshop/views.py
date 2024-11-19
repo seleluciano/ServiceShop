@@ -392,3 +392,15 @@ class Eliminarservicio(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = "servicio_confirm_delete.html"
     success_url = '/appserviceshop/mispublicaciones'
     success_message = "Servicio eliminado correctamente."  # Mensaje de éxito
+
+
+def buscar_servicios(request):
+    query = request.GET.get('q', '')  # Obtén el término de búsqueda
+    if query:
+        servicios = Servicio.objects.filter(name__icontains=query)  # Filtra servicios por nombre
+    else:
+        servicios = Servicio.objects.all()  # Si no hay término, muestra todos
+    context = {
+        'servicios': servicios,
+    }
+    return render(request, 'index.html', context)

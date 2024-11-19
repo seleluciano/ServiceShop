@@ -2,52 +2,28 @@
 {% load static %} 
 {% block contenidoQueCambia %}
 
-<!-- Section -->
 <section class="py-5">
     <div class="container px-4 px-lg-5 mt-5">
+        <h2>Resultados de búsqueda</h2>
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
             {% for servicio in servicios %}
-            <div class="col mb-5">
-                <div class="card h-100">
-                    <!-- Product image -->
-                    <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
-                    <!-- Product details -->
-                    <div class="card-body p-4">
-                        <div>
-                            <!-- Product name -->
-                            <h5 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;">{{ servicio.name }}</h5>
-                            <!-- Separator line -->
-                            <hr style="margin-bottom: 0.75rem;">
-                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                Vendido por: <span style="font-weight: 500;">{{ servicio.vendedor.first_name }} {{ servicio.vendedor.last_name }}</span>
-                            </p>
-                            <hr style="margin-bottom: 0.75rem;">
-                            <!-- Product category -->
-                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                Categoría: <span style="font-weight: 500;">{{ servicio.categoria }}</span>
-                            </p>
-                            <!-- Product zone -->
-                            <p style="font-size: 0.875rem; color: #343a40; margin-bottom: 0.5rem; text-align: center;">
-                                Zona: <span style="font-weight: 500;">{{ servicio.zona }}</span>
-                            </p>
-                            <!-- Product price -->
-                            <p style="font-size: 1.125rem; font-weight: 700; color: #212529; text-align: center;">
-                                Precio: ${{ servicio.precio }}
-                            </p>
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        <!-- Same card structure as before -->
+                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
+                        <div class="card-body p-4">
+                            <h5>{{ servicio.name }}</h5>
+                            <p>{{ servicio.categoria }}</p>
+                            <p>${{ servicio.precio }}</p>
                         </div>
-                    </div>
-                    <!-- Product actions -->
-                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                        <div class="text-center">
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                             <a class="btn btn-outline-dark mt-auto" href="{% url 'anadir_al_carrito' servicio.id %}">Añadir al carrito</a>
-                            <br></br>
                             <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' servicio.id %}">Ver más</a>
                         </div>
                     </div>
                 </div>
-            </div>
             {% empty %}
-            <p>No hay servicios disponibles en este momento.</p>
+                <p>No se encontraron servicios para la búsqueda "{{ request.GET.q }}".</p>
             {% endfor %}
         </div>
     </div>
