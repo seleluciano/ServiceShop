@@ -1,0 +1,18 @@
+{% extends "padre.html" %}
+{% block contenidoQueCambia %}
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <a href="{% url 'servicio_detalle' servicio_id=reseña.servicio.id %}" class="btn btn-secondary ms-3">Volver</a>
+
+        <h2>Editar Reseña</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

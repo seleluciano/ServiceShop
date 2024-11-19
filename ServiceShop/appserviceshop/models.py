@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class Avatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -20,7 +22,7 @@ class Servicio(models.Model):
         ('Servicios de Reparación y Mantenimiento', 'Servicios de Reparación y Mantenimiento'),
         ('Consultoría y Servicios Profesionales', 'Consultoría y Servicios Profesionales'),
         ('Belleza y Cuidado Personal', 'Belleza y Cuidado Personal'),
-        (' Arte y Publicidad', ' Arte y Publicidad'),
+        ('Arte y Publicidad', 'Arte y Publicidad'),
     ]
     
     ZONA_CHOICES = [
@@ -43,6 +45,13 @@ class Servicio(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def calificacion_promedio(self):
+        reseñas = self.reseñas.all()
+        if reseñas.exists():
+            return sum([reseña.calificación for reseña in reseñas]) / reseñas.count()
+        return 0  # Si no hay reseñas, retornar 0
+    
 
 class Carrito(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -103,3 +112,18 @@ class Compras_M(models.Model):
 
     def __str__(self):
         return f"Compra de {self.servicio.nombre} por {self.comprador.username} - Fecha: {self.fecha_compra}, Cantidad: {self.cantidad}"
+
+class Reseña(models.Model):
+    servicio = models.ForeignKey(Servicio, related_name='reseñas', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    # calificacion = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comentario = models.TextField(blank=True, null=True)
+    calificacion = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # Para una escala de 1 a 5 estrellas
+    fecha = models.DateTimeField(default=timezone.now)
+    
+
+    class Meta:
+        ordering = ['-fecha']  # Ordenar por la fecha más reciente
+
+    def __str__(self):
+        return f'Reseña de {self.usuario.username} para {self.servicio.nombre}'

@@ -76,7 +76,8 @@
                                     Cambiar Estado
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ venta.id }}">
-                                    {% for estado in "En curso,Cancelado,Completado" %}
+                                    
+                                    {% for estado in estados %}
                                     <li>
                                         <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
                                             {% csrf_token %}
