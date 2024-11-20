@@ -122,27 +122,15 @@ class Reseña(models.Model):
     def __str__(self):
         return f"Reseña de {self.usuario.username} - Compra #{self.compra.id}"
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    user_type = models.CharField(max_length=50, default='Cliente')  # Ejemplo: Cliente, Proveedor
-    average_rating = models.FloatField(default=0.0)
+class ReseñaUsuario(models.Model):
+    reseñado = models.ForeignKey(User, related_name="reseñas_recibidas", on_delete=models.CASCADE)
+    reseñador = models.ForeignKey(User, related_name="reseñas_realizadas", on_delete=models.CASCADE)
+    calificacion = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Calificación de 1 a 5
+    texto = models.TextField(blank=True, null=True)  # Opcional
+    fecha = models.DateTimeField(auto_now_add=True)  # Fecha de la reseña
+
+    class Meta:
+        ordering = ['-fecha']  # Más recientes primero
 
     def __str__(self):
-        return self.user.username
-
-class Rating(models.Model):
-    rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name='given_ratings')
-    rated = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_ratings')
-    score = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Calificación de 1 a 5
-    comment = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.rater} -> {self.rated}: {self.score}'
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        # Actualizar el promedio del usuario valorado
-        ratings = Rating.objects.filter(rated=self.rated)
-        self.rated.profile.average_rating = ratings.aggregate(models.Avg('score'))['score__avg']
-        self.rated.profile.save()
+        return f"Reseña de {self.reseñador.username} para {self.reseñado.username}"

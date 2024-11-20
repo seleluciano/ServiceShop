@@ -25,9 +25,7 @@ urlpatterns = [
      path('servicios/', views.filtrar_servicios, name='filtrar_servicios'),
      path('buscar/', views.buscar_servicios, name='buscar_servicios'),
      path('compra/<int:compra_id>/agregar_resena/', views.crear_resena, name='agregar_resena'),
-     path('compra/modificar_resena/<int:pk>/', views.ModificarReseña.as_view(), name='modificar_resena'),
+     path('compra/modificar_resena/<int:pk>/', views. modificar_reseña, name='modificar_resena'),
      path('compra/eliminar_resena/<int:pk>/', views.EliminarReseña.as_view(), name='eliminar_resena'),
-     path('user/<int:user_id>/rate/', views.rate_user, name='rate_user'),
-     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
 
 ]

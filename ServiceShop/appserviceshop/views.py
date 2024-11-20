@@ -16,7 +16,6 @@ from .models import *
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Avg,Q  # Necesario para calcular el promedio de las calificaciones
-from django.templatetags.static import static
 
 @login_required
 def Inicio(request):
@@ -400,56 +399,21 @@ def crear_resena(request, compra_id):
     # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
     return render(request, 'miscompras.html', {'form': form, 'compra': compra})
 
-
 @login_required
-def rate_user(request, user_id):
-    rated_user = get_object_or_404(User, id=user_id)
-    if request.method == 'POST':
-        form = RatingForm(request.POST)
+def modificar_reseña(request, pk):
+    reseña = get_object_or_404(Reseña, pk=pk, usuario=request.user)
+    if request.method == "POST":
+        form = ReseñaForm(request.POST, instance=reseña)
         if form.is_valid():
-            rating = form.save(commit=False)
-            rating.rater = request.user
-            rating.rated = rated_user
-            rating.save()
-            return redirect('user_detail', user_id=rated_user.id)
+            form.save()
+            messages.success(request, "Reseña modificada correctamente.")
+            return redirect('miscompras')
+        else:
+            messages.error(request, "Hubo un error al modificar la reseña.")
     else:
-        form = RatingForm()
-    return render(request, 'rate_user.html', {'form': form, 'rated_user': rated_user})
-
-@login_required
-def user_detail(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    ratings = user.received_ratings.all()
-    return render(request, 'user_detail.html', {'user': user, 'ratings': ratings})
-class ModificarReseña(UpdateView):
-    model = Reseña
-    form_class = ReseñaForm
-    template_name = 'resena_form.html'
-
-    def get_object(self, queryset=None):
-        # Obtenemos la reseña con la clave primaria (pk) que está en la URL
-        return get_object_or_404(Reseña, pk=self.kwargs['pk'])
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Asegúrate de que el formulario esté siendo pasado con los datos de la reseña
-        context['form'] = self.get_form()
-        return context
-
-    def form_valid(self, form):
-        # Si el formulario es válido, guarda la reseña
-        form.save()
-
-        # Mensaje de éxito
-        messages.success(self.request, "Reseña modificada correctamente.")
-
-        # Redirige al detalle de la compra, pasando el id de la compra relacionada
-        return redirect('compra_detalle', compra_id=self.object.compra.id)
-
-    def form_invalid(self, form):
-        # Si el formulario es inválido, muestra un mensaje de error
-        messages.error(self.request, "Hubo un error al modificar la reseña.")
-        return super().form_invalid(form)
+        form = ReseñaForm(instance=reseña)
+    
+    return render(request, 'resena_form.html', {'form': form, 'reseña': reseña})
 
 class EliminarReseña(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Reseña

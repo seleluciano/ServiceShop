@@ -11,6 +11,7 @@
             <div class="col-12 col-md-8 mb-5">
                 <div class="card h-100">
                     <div class="card-body p-4">
+                        <!-- Información del servicio -->
                         <h5 class="text-center" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">
                             {{ compra.servicio.name }}
                         </h5>
@@ -24,7 +25,8 @@
                             ${{ compra.servicio.precio }}</p>
                     </div>
 
-                    <!-- Reseñas -->
+                  
+                    <!-- Reseña del usuario -->
                     <div class="mt-4">
                         {% if reseña_usuario %}
                         <h5>Tu Reseña:</h5>
@@ -43,18 +45,13 @@
                                     style="width: 20px; height: 20px;">
                                 {% endfor %}
                             </p>
-
                             <p>{{ reseña_usuario.texto }}</p>
                             <div class="d-flex">
-                                <!-- Botón Editar, redirige a la URL de modificar reseña -->
-                                <form method="POST" action="{% url 'modificar_resena' reseña_usuario.id %}" class="me-2">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                    </button>
-                                </form>
-                            
-                                <!-- Botón Eliminar, redirige a la URL de eliminar reseña -->
+                                <!-- Botón Editar -->
+                                <a href="{% url 'modificar_resena' reseña_usuario.id %}" class="btn btn-warning btn-sm me-2">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <!-- Botón Eliminar -->
                                 <form method="POST" action="{% url 'eliminar_resena' reseña_usuario.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger btn-sm">
@@ -62,8 +59,6 @@
                                     </button>
                                 </form>
                             </div>
-                            
-
                         </div>
                         {% else %}
                         <p>No has dejado una reseña para este servicio.</p>
@@ -71,7 +66,7 @@
                     </div>
 
                     <!-- Formulario para nueva reseña -->
-                    {% if not reseña_usuario %}
+                    {% if form %}
                     <h5>Agregar Reseña:</h5>
                     <form method="POST" action="{% url 'agregar_resena' compra.id %}">
                         {% csrf_token %}
@@ -84,5 +79,4 @@
         </div>
     </div>
 </section>
-
 {% endblock %}

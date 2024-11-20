@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import *
 from django.core.exceptions import ValidationError  # Agregar esta importación
-from .models import Rating
 
 class UserRegisterForm(UserCreationForm):
     first_name = forms.CharField(label="Nombre", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingresa tu nombre'}))
@@ -76,11 +75,3 @@ class ReseñaForm(forms.ModelForm):
         if not calificacion:
             raise ValidationError('Debes seleccionar una calificación.')
         return calificacion
-class RatingForm(forms.ModelForm):
-        class Meta:
-            model = Rating
-            fields = ['score', 'comment']
-            widgets = {
-                'score': forms.Select(choices=[(i, i) for i in range(1, 6)]),
-                'comment': forms.Textarea(attrs={'rows': 3}),
-        }
