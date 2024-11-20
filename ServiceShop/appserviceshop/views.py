@@ -387,43 +387,54 @@ def crear_resena(request, compra_id):
             reseña.usuario = request.user
             reseña.compra = compra
             reseña.save()
+            # Mensaje de éxito
+            messages.success(request, "¡Reseña guardada correctamente!")
             # Renderizar nuevamente el detalle de la compra con la nueva reseña guardada
             return render(request, 'compra_detalle.html', {'compra': compra, 'form': form})
+        else:
+            # Mensaje de error si el formulario no es válido
+            messages.error(request, "Hubo un error al guardar tu reseña. Por favor, revisa los campos.")
     else:
         form = ReseñaForm()
 
     # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
-    return render(request, 'compra_detalle.html', {'form': form, 'compra': compra})
+    return render(request, 'miscompras.html', {'form': form, 'compra': compra})
 
-@login_required
-def editar_resena(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id)
+class ModificarReseña(UpdateView):
+    model = Reseña
+    form_class = ReseñaForm
+    template_name = 'resena_form.html'
 
-    # Verificar que el usuario sea el propietario de la reseña
-    if reseña.usuario != request.user:
-        return redirect('compra_detalle', compra_id=reseña.compra.id)
+    def get_object(self, queryset=None):
+        # Obtenemos la reseña con la clave primaria (pk) que está en la URL
+        return get_object_or_404(Reseña, pk=self.kwargs['pk'])
 
-    if request.method == 'POST':
-        form = ReseñaForm(request.POST, instance=reseña)
-        if form.is_valid():
-            form.save()
-            return redirect('compra_detalle', compra_id=reseña.compra.id)
-    else:
-        form = ReseñaForm(instance=reseña)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Asegúrate de que el formulario esté siendo pasado con los datos de la reseña
+        context['form'] = self.get_form()
+        return context
 
-    return render(request, 'compra_detalle.html', {'form': form, 'reseña': reseña})
+    def form_valid(self, form):
+        # Si el formulario es válido, guarda la reseña
+        form.save()
 
+        # Mensaje de éxito
+        messages.success(self.request, "Reseña modificada correctamente.")
 
-@login_required
-def eliminar_resena(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id)
-    if reseña.usuario != request.user:
-        # Si el usuario no es el propietario de la reseña, redirigir al detalle de la compra
-        return redirect('compra_detalle', compra_id=reseña.compra.id) 
+        # Redirige al detalle de la compra, pasando el id de la compra relacionada
+        return redirect('compra_detalle', compra_id=self.object.compra.id)
 
-    reseña.delete()
-    # Volver a redirigir al detalle de la compra sin la reseña eliminada
-    return redirect('compra_detalle', compra_id=reseña.compra.id)
+    def form_invalid(self, form):
+        # Si el formulario es inválido, muestra un mensaje de error
+        messages.error(self.request, "Hubo un error al modificar la reseña.")
+        return super().form_invalid(form)
+
+class EliminarReseña(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Reseña
+    template_name = 'confirmar_eliminacion_resena.html'  # Asegúrate de crear este template
+    success_url = reverse_lazy('miscompras')  # Cambia esto a la URL a la que quieres redirigir
+    success_message = "Reseña eliminada correctamente."  # Mensaje de éxito al eliminar la reseña
 
 class Detalleservicio(LoginRequiredMixin, DetailView):
     model = Servicio
@@ -466,8 +477,6 @@ class Detalleservicio(LoginRequiredMixin, DetailView):
             reseña.estrellas_grises = estrellas_grises_reseña
 
         return context
-
-
 
 class Detallecompra(LoginRequiredMixin, DetailView):
     model = Compras_M
@@ -518,7 +527,6 @@ class Detallecompra(LoginRequiredMixin, DetailView):
         })
 
         return context
-
 
 class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio

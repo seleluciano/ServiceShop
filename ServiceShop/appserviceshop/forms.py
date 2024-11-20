@@ -61,3 +61,4 @@ class ReseñaForm(forms.ModelForm):
     class Meta:
         model = Reseña
         fields = ['texto', 'calificacion']
+

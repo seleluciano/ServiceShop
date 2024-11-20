@@ -44,13 +44,26 @@
                                 {% endfor %}
                             </p>
 
-                            <p>{{ reseña_usuario.comentario }}</p>
+                            <p>{{ reseña_usuario.texto }}</p>
                             <div class="d-flex">
-                                <button type="button" class="btn btn-warning btn-sm me-2" data-bs-toggle="modal"
-                                    data-bs-target="#editReviewModal">Editar</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#deleteReviewModal">Eliminar</button>
+                                <!-- Botón Editar, redirige a la URL de modificar reseña -->
+                                <form method="POST" action="{% url 'modificar_resena' reseña_usuario.id %}" class="me-2">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </button>
+                                </form>
+                            
+                                <!-- Botón Eliminar, redirige a la URL de eliminar reseña -->
+                                <form method="POST" action="{% url 'eliminar_resena' reseña_usuario.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </form>
                             </div>
+                            
+
                         </div>
                         {% else %}
                         <p>No has dejado una reseña para este servicio.</p>
@@ -71,56 +84,5 @@
         </div>
     </div>
 </section>
-
-<!-- Modal Editar Reseña -->
-<div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editReviewModalLabel">Editar Reseña</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                {% if reseña_usuario %}
-                <form method="POST" action="{% url 'editar_resena' reseña_usuario.id %}">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
-                </form>
-                {% else %}
-                <p>No tienes una reseña para editar.</p>
-                {% endif %}
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Eliminar Reseña -->
-<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteReviewModalLabel">Eliminar Reseña</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body">
-                <p>¿Estás seguro de que deseas eliminar tu reseña?</p>
-            </div>
-            <div class="modal-footer">
-                {% if reseña_usuario %}
-                <form method="POST" action="{% url 'eliminar_resena' reseña_usuario.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
-                </form>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                {% else %}
-                <p>No tienes una reseña para editar.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock %}
