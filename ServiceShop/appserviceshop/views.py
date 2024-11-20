@@ -1,32 +1,22 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404, redirect
 from appserviceshop.models import *
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.forms import AuthenticationForm
-from .forms import UserRegisterForm,UserEditForm,AvatarFormulario
+from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import UpdateView, DeleteView,CreateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .models import Servicio, Avatar
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect
 from .models import *
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Avg  # Necesario para calcular el promedio de las calificaciones
-from django.core.exceptions import ValidationError
-from django.http import HttpResponse
-from .forms import ReseñaForm
-from .models import Servicio, Reseña
-from django.shortcuts import render, get_object_or_404
-from .models import Compras_M, Reseña, Servicio
-
+from django.db.models import Avg,Q  # Necesario para calcular el promedio de las calificaciones
+from django.templatetags.static import static
 
 @login_required
 def Inicio(request):
@@ -131,7 +121,6 @@ def Cambiaravatar(request):
     return render(request, "cambiaravatar.html", {"miFormulario": miFormulario, "avatar": avatar})
 
 
-@login_required
 def mis_compras(request):
     compras = Compras_M.objects.filter(comprador=request.user)
 
@@ -158,43 +147,12 @@ def mis_compras(request):
     paginator = Paginator(compras, 10)  # Mostrar 10 compras por página
     page_obj = paginator.get_page(page_number)
 
-    # Preparar los detalles de cada compra
-    compras_detalles = []
-    for compra in page_obj:
-        servicio = compra.servicio
-        reseñas = Reseña.objects.filter(servicio=servicio)
-        
-        # Calcular la calificación promedio
-        total_calificacion = sum([reseña.calificacion for reseña in reseñas])
-        promedio_calificacion = total_calificacion / len(reseñas) if reseñas else None
-        
-        # Crear una lista de estrellas para la calificación promedio
-        estrellas = []
-        if promedio_calificacion:
-            for i in range(int(promedio_calificacion)):
-                estrellas.append('*')
-            if promedio_calificacion % 1 >= 0.5:
-                estrellas.append('*')
-        
-        # Verificar si el usuario ya tiene una reseña
-        reseña_existente = Reseña.objects.filter(servicio=servicio, usuario=request.user).first()
-
-        # Agregar los detalles de cada compra al contexto
-        compras_detalles.append({
-            'compra': compra,
-            'reseñas': reseñas,
-            'promedio_calificacion': promedio_calificacion,
-            'estrellas': estrellas,
-            'reseña_existente': reseña_existente,
-        })
-
     # Contexto para la plantilla
     context = {
         'page_obj': page_obj,
         'fecha': fecha,  # Pasar la fecha actual para que se mantenga en el filtro
         'estado': estado,  # Pasar el estado actual para que se mantenga en el filtro
         'servicio': servicio,  # Pasar el servicio actual para que se mantenga en el filtro
-        'compras_detalles': compras_detalles,
     }
 
     return render(request, 'miscompras.html', context)
@@ -371,7 +329,8 @@ def confirmar_carrito(request):
         # Manejar el caso de que el carrito no exista
         messages.error(request, "No tienes un carrito activo.")
         return redirect('index')  # Redirigir a la página principal en caso de error
-    
+
+@login_required    
 def filtrar_servicios(request):
     servicios = Servicio.objects.all()  # Obtén todos los servicios inicialmente
 
@@ -398,49 +357,169 @@ def filtrar_servicios(request):
 
     return render(request, 'filtrar_servicios.html', {'servicios': servicios})
 
-class Detalleservicio(LoginRequiredMixin,DetailView):
-   model=Servicio
-   template_name="servicio_detalle.html"
-   def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        servicio = context['servicio']
-        
-        # Obtener las reseñas y la calificación promedio
-        reseñas = servicio.reseñas.all()
-        calificacion_promedio = servicio.reseñas.aggregate(Avg('calificacion'))['calificacion__avg']
+@login_required
+def buscar_servicios(request):
+    query = request.GET.get('q', '')  # Obtener el término de búsqueda desde la URL
+    servicios = Servicio.objects.all()
 
-        # Añadir estos valores al contexto
-        context['reseñas'] = reseñas
-        context['calificacion_promedio'] = calificacion_promedio
+    if query:
+        # Filtrar los servicios que coincidan con el término de búsqueda
+        servicios = servicios.filter(
+            Q(name__icontains=query) |  # Coincidencia en el nombre del servicio
+            Q(descripcion__icontains=query)  # Coincidencia en la descripción del servicio
+        )
 
-        return context
-
-class Detallecompra(LoginRequiredMixin,DetailView):
-   model=Compras_M
-   template_name="compra_detalle.html"
-   def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # compra = context['compra']
-        compra = context.get('compra')
-        
-        if compra:
-        # Obtener el servicio asociado a esta compra
-            servicio = compra.servicio
-        
-        # Obtener las reseñas y la calificación promedio
-            reseñas = servicio.reseñas.all()
-            calificacion_promedio = servicio.reseñas.aggregate(Avg('calificacion'))['calificacion__avg']
-
-        # Añadir estos valores al contexto
-            context['reseñas'] = reseñas
-            context['calificacion_promedio'] = calificacion_promedio
-            context['servicio'] = servicio
-        else:
-            context['error'] = 'Compra no encontrada'
-        
-        return context
-
+    context = {
+        'servicios': servicios,
+        'query': query,
+    }
     
+    return render(request, 'busquedas.html', context)
+
+@login_required
+def crear_resena(request, compra_id):
+    compra = get_object_or_404(Compras_M, id=compra_id)
+    
+    if request.method == 'POST':
+        form = ReseñaForm(request.POST)
+        if form.is_valid():
+            reseña = form.save(commit=False)
+            reseña.usuario = request.user
+            reseña.compra = compra
+            reseña.save()
+            # Renderizar nuevamente el detalle de la compra con la nueva reseña guardada
+            return render(request, 'compra_detalle.html', {'compra': compra, 'form': form})
+    else:
+        form = ReseñaForm()
+
+    # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
+    return render(request, 'compra_detalle.html', {'form': form, 'compra': compra})
+
+@login_required
+def editar_resena(request, reseña_id):
+    reseña = get_object_or_404(Reseña, id=reseña_id)
+
+    # Verificar que el usuario sea el propietario de la reseña
+    if reseña.usuario != request.user:
+        return redirect('compra_detalle', compra_id=reseña.compra.id)
+
+    if request.method == 'POST':
+        form = ReseñaForm(request.POST, instance=reseña)
+        if form.is_valid():
+            form.save()
+            return redirect('compra_detalle', compra_id=reseña.compra.id)
+    else:
+        form = ReseñaForm(instance=reseña)
+
+    return render(request, 'compra_detalle.html', {'form': form, 'reseña': reseña})
+
+
+@login_required
+def eliminar_resena(request, reseña_id):
+    reseña = get_object_or_404(Reseña, id=reseña_id)
+    if reseña.usuario != request.user:
+        # Si el usuario no es el propietario de la reseña, redirigir al detalle de la compra
+        return redirect('compra_detalle', compra_id=reseña.compra.id) 
+
+    reseña.delete()
+    # Volver a redirigir al detalle de la compra sin la reseña eliminada
+    return redirect('compra_detalle', compra_id=reseña.compra.id)
+
+class Detalleservicio(LoginRequiredMixin, DetailView):
+    model = Servicio
+    template_name = "servicio_detalle.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        servicio = self.object  # Obtiene el servicio actual
+
+        # Obtener todas las compras asociadas con el servicio
+        compras = Compras_M.objects.filter(servicio=servicio)
+
+        # Obtener todas las reseñas asociadas a las compras de este servicio
+        reseñas = Reseña.objects.filter(compra__in=compras)
+
+        # Calcular la calificación promedio de las reseñas
+        calificacion_promedio = reseñas.aggregate(promedio=Avg('calificacion'))['promedio'] or 0
+
+        # Calcular el número de estrellas doradas y grises
+        estrellas_doradas = int(calificacion_promedio)
+        estrellas_grises = 5 - estrellas_doradas
+
+        # Crear las listas de estrellas
+        estrellas_doradas_list = ['star.png'] * estrellas_doradas
+        estrellas_grises_list = ['star_gray.png'] * estrellas_grises
+
+        # Pasar las listas de estrellas al contexto
+        context.update({
+            'reseñas': reseñas,
+            'calificacion_promedio': calificacion_promedio,
+            'estrellas_doradas_list': estrellas_doradas_list,
+            'estrellas_grises_list': estrellas_grises_list,
+        })
+
+        # Añadir las estrellas por reseña
+        for reseña in reseñas:
+            estrellas_doradas_reseña = ['star.png'] * int(reseña.calificacion)
+            estrellas_grises_reseña = ['star_gray.png'] * (5 - int(reseña.calificacion))
+            reseña.estrellas_doradas = estrellas_doradas_reseña
+            reseña.estrellas_grises = estrellas_grises_reseña
+
+        return context
+
+
+
+class Detallecompra(LoginRequiredMixin, DetailView):
+    model = Compras_M
+    template_name = "compra_detalle.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        compra = self.object
+        servicio = compra.servicio
+
+        # Verificar si el usuario ya tiene una reseña para este servicio
+        reseña_usuario = Reseña.objects.filter(compra=compra, usuario=self.request.user).first()
+
+        # Si no existe una reseña del usuario, preparamos el formulario
+        form = ReseñaForm() if not reseña_usuario else None
+
+        # Preparar las estrellas de la reseña del usuario
+        if reseña_usuario:
+            estrellas_doradas_reseña = ['star.png'] * int(reseña_usuario.calificacion)
+            estrellas_grises_reseña = ['star_gray.png'] * (5 - int(reseña_usuario.calificacion))
+        else:
+            estrellas_doradas_reseña = []
+            estrellas_grises_reseña = []
+
+        # Obtener las reseñas del servicio (no la reseña del usuario, sino las generales)
+        reseñas = Reseña.objects.filter(compra__servicio=servicio)
+
+        # Calcular la calificación promedio y estrellas de reseñas generales
+        calificacion_promedio = reseñas.aggregate(promedio=Avg('calificacion'))['promedio'] or 0
+        estrellas_doradas = int(calificacion_promedio)
+        estrellas_grises = 5 - estrellas_doradas
+
+        # Crear las listas de estrellas
+        estrellas_doradas_list = ['star.png'] * estrellas_doradas
+        estrellas_grises_list = ['star_gray.png'] * estrellas_grises
+
+        # Pasar todos los datos al contexto
+        context.update({
+            'compra': compra,
+            'form': form,  # Formulario para agregar reseña
+            'reseña_usuario': reseña_usuario,  # Información de la reseña del usuario actual
+            'calificacion_promedio': calificacion_promedio,
+            'estrellas_doradas_list': estrellas_doradas_list,
+            'estrellas_grises_list': estrellas_grises_list,
+            'estrellas_doradas_reseña': estrellas_doradas_reseña,
+            'estrellas_grises_reseña': estrellas_grises_reseña,
+            'reseñas': reseñas,
+        })
+
+        return context
+
+
 class Crearservicio(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     model = Servicio
     fields = ['name', 'categoria', 'precio', 'zona', 'descripcion', 'disponibilidadhoraria', 'imagen']
@@ -466,221 +545,3 @@ class Eliminarservicio(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     template_name = "servicio_confirm_delete.html"
     success_url = '/appserviceshop/mispublicaciones'
     success_message = "Servicio eliminado correctamente."  # Mensaje de éxito
-
-  
-def detalleservicio(request, servicio_id):
-    servicio = get_object_or_404(Servicio, id=servicio_id)
-    reseñas = Reseña.objects.filter(servicio=servicio)
-    
-    # Calcular la calificación promedio
-    total_calificacion = sum([reseña.calificacion for reseña in reseñas])
-    promedio_calificacion = total_calificacion / len(reseñas) if reseñas else None
-    
-    # Crear una lista de estrellas para la calificación promedio
-    estrellas = []
-    if promedio_calificacion:
-        for i in range(int(promedio_calificacion)):
-            estrellas.append('*')  # Añadir una estrella completa
-        if promedio_calificacion % 1 >= 0.5:
-            estrellas.append('*')  # Añadir una estrella media
-    else:
-        estrellas = []  # No hay reseñas, no hay estrellas
-    
-    # Verificar si el usuario ya tiene una reseña
-    reseña_existente = Reseña.objects.filter(servicio=servicio, usuario=request.user).first()
-
-    # Manejar el formulario de reseña (para agregar o editar)
-    if request.method == 'POST':
-        # Si el usuario ya tiene una reseña, la vamos a editar
-        if reseña_existente:
-            # Actualizar reseña existente
-            reseña_existente.calificacion = request.POST.get('calificacion')
-            reseña_existente.comentario = request.POST.get('comentario')
-            reseña_existente.save()
-            messages.success(request, '¡Tu reseña ha sido actualizada!')
-        else:
-            # Crear una nueva reseña
-            calificacion = request.POST.get('calificacion')
-            comentario = request.POST.get('comentario')
-            Reseña.objects.create(
-                servicio=servicio,
-                usuario=request.user,
-                calificacion=calificacion,
-                comentario=comentario
-            )
-            messages.success(request, '¡Gracias por tu reseña!')
-
-        # Redirigir a la misma página
-        return redirect('detalleservicio', servicio_id=servicio.id)
-
-    return render(request, 'servicio_detalle.html', {
-        'servicio': servicio,
-        'reseñas': reseñas,
-        'promedio_calificacion': promedio_calificacion,
-        'estrellas': estrellas,
-        'reseña_existente': reseña_existente,  # Pasar la reseña para la edición
-    })
-    
-def detallecompra(request, servicio_id):
-    servicio = get_object_or_404(Servicio, id=servicio_id)
-    reseñas = Reseña.objects.filter(servicio=servicio)
-    
-    # Calcular la calificación promedio
-    total_calificacion = sum([reseña.calificacion for reseña in reseñas])
-    promedio_calificacion = total_calificacion / len(reseñas) if reseñas else None
-    
-    # Crear una lista de estrellas para la calificación promedio
-    estrellas = []
-    if promedio_calificacion:
-        for i in range(int(promedio_calificacion)):
-            estrellas.append('*')  # Añadir una estrella completa
-        if promedio_calificacion % 1 >= 0.5:
-            estrellas.append('*')  # Añadir una estrella media
-    else:
-        estrellas = []  # No hay reseñas, no hay estrellas
-    
-    # Verificar si el usuario ya tiene una reseña
-    reseña_existente = Reseña.objects.filter(servicio=servicio, usuario=request.user).first()
-
-    # Manejar el formulario de reseña (para agregar o editar)
-    if request.method == 'POST':
-        # Si el usuario ya tiene una reseña, la vamos a editar
-        if reseña_existente:
-            # Actualizar reseña existente
-            reseña_existente.calificacion = request.POST.get('calificacion')
-            reseña_existente.comentario = request.POST.get('comentario')
-            reseña_existente.save()
-            messages.success(request, '¡Tu reseña ha sido actualizada!')
-        else:
-            # Crear una nueva reseña
-            calificacion = request.POST.get('calificacion')
-            comentario = request.POST.get('comentario')
-            Reseña.objects.create(
-                servicio=servicio,
-                usuario=request.user,
-                calificacion=calificacion,
-                comentario=comentario
-            )
-            messages.success(request, '¡Gracias por tu reseña!')
-
-        # Redirigir a la misma página
-        return redirect('detallecompra', servicio_id=servicio.id)
-
-    return render(request, 'compra_detalle.html', {
-        'servicio': servicio,
-        'reseñas': reseñas,
-        'promedio_calificacion': promedio_calificacion,
-        'estrellas': estrellas,
-        'reseña_existente': reseña_existente,  # Pasar la reseña para la edición
-    })
-    
-    
-    
-    
-    
-    
-    
-
-@login_required
-def agregar_resena(request, servicio_id):
-    servicio = get_object_or_404(Servicio, id=servicio_id)
-
-    if servicio.vendedor == request.user:
-        messages.error(request, "No puedes valorar tu propio servicio.")
-        return redirect('servicio_detalle', servicio_id=servicio.id)
-        
-    if request.method == 'POST':
-        form = ReseñaForm(request.POST)
-        if form.is_valid():
-            reseña = form.save(commit=False)
-            reseña.servicio = servicio
-            reseña.usuario = request.user
-            reseña.save()
-            messages.success(request, "¡Gracias por tu reseña!")
-            return redirect('servicio_detalle', servicio_id=servicio.id)
-        else:
-             messages.error(request, "Por favor, selecciona una calificación antes de enviar tu reseña.")
-
-    else:
-        form = ReseñaForm()
-
-    return render(request, 'agregar_resena.html', {'form': form, 'servicio': servicio})
-
-# Vista para editar una reseña
-@login_required
-def editar_resena(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id, usuario=request.user)
-
-    if request.method == 'POST':
-        form = ReseñaForm(request.POST, instance=reseña)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Se actualizo tu reseña")
-            return redirect('servicio_detalle', servicio_id=reseña.servicio.id)
-    else:
-        form = ReseñaForm(instance=reseña)
-
-    return render(request, 'editar_resena.html', {'form': form, 'reseña': reseña})
-
-# Vista para borrar una reseña
-@login_required
-def borrar_resena(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id, usuario=request.user)
-    servicio_id = reseña.servicio.id  # Guardamos el id del servicio para redirigir después
-    reseña.delete()
-    messages.success(request, "Se ha borrado tu reseña")
-    return redirect('servicio_detalle', servicio_id=servicio_id)
-
-
-
-
-
-@login_required
-def agregar_resena_compra(request, servicio_id):
-    servicio = get_object_or_404(Servicio, id=servicio_id)
-
-    if servicio.vendedor == request.user:
-        messages.error(request, "No puedes valorar tu propio servicio.")
-        return redirect('miscompras', servicio_id=servicio.id)
-        
-    if request.method == 'POST':
-        form = ReseñaForm(request.POST)
-        if form.is_valid():
-            reseña = form.save(commit=False)
-            reseña.servicio = servicio
-            reseña.usuario = request.user
-            reseña.save()
-            messages.success(request, "¡Gracias por tu reseña!")
-            return redirect('miscompras', servicio_id=servicio.id)
-        else:
-             messages.error(request, "Por favor, selecciona una calificación antes de enviar tu reseña.")
-
-    else:
-        form = ReseñaForm()
-
-    return render(request, 'agregar_resena.html', {'form': form, 'servicio': servicio})
-
-# Vista para editar una reseña
-@login_required
-def editar_resena_compra(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id, usuario=request.user)
-
-    if request.method == 'POST':
-        form = ReseñaForm(request.POST, instance=reseña)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Se actualizo tu reseña")
-            return redirect('miscompras', servicio_id=reseña.servicio.id)
-    else:
-        form = ReseñaForm(instance=reseña)
-
-    return render(request, 'editar_resena.html', {'form': form, 'reseña': reseña})
-
-# Vista para borrar una reseña
-@login_required
-def borrar_resena_compra(request, reseña_id):
-    reseña = get_object_or_404(Reseña, id=reseña_id, usuario=request.user)
-    servicio_id = reseña.servicio.id  # Guardamos el id del servicio para redirigir después
-    reseña.delete()
-    messages.success(request, "Se ha borrado tu reseña")
-    return redirect('micompras', servicio_id=servicio_id)

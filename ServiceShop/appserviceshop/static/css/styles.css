@@ -10833,5 +10833,71 @@ textarea.form-control-lg {
   height: 30px;  /* Alto de la imagen más pequeño */
   border-radius: 50%;  /* Hace la imagen circular */
 }
+.rating {
+  direction: rtl;
+  display: inline-block;
+  font-size: 30px;
+}
 
+.rating input {
+  display: none;
+}
 
+.rating label {
+  color: #ccc;
+  cursor: pointer;
+}
+
+.rating input:checked ~ label,
+.rating label:hover,
+.rating label:hover ~ label {
+  color: #f39c12;
+}
+
+.rating label:active {
+  color: #e67e22;
+}
+
+.error-message {
+  color: red;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.edit-form {
+  display: none;
+}
+
+.reseña-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.reseña-actions button,
+.reseña-actions form button {
+  transition: all 0.3s ease;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+}
+
+.reseña-actions button:hover,
+.reseña-actions form button:hover {
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+.star {
+  width: 20px;  /* Tamaño de la estrella */
+  height: 20px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+input[type="radio"] {
+  display: none;  /* Esconde los botones de radio, solo se verá la imagen */
+}
+input[type="radio"]:checked + img {
+  opacity: 0.5;  /* Si la opción está seleccionada, cambiar la opacidad */
+}

@@ -1,7 +1,6 @@
 {% extends "padre.html" %}
 {% load static %}
 {% block contenidoQueCambia %}
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -9,72 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ servicio.name }}</title>
-    <!-- Incluir Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
-    <!-- Estilos para las estrellas y botones -->
-    <style>
-        .rating {
-            direction: rtl;
-            display: inline-block;
-            font-size: 30px;
-        }
-
-        .rating input {
-            display: none;
-        }
-
-        .rating label {
-            color: #ccc;
-            cursor: pointer;
-        }
-
-        .rating input:checked ~ label,
-        .rating label:hover,
-        .rating label:hover ~ label {
-            color: #f39c12;
-        }
-
-        .rating label:active {
-            color: #e67e22;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 1rem;
-            margin-top: 10px;
-        }
-
-        .edit-form {
-            display: none;
-        }
-
-        .reseña-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .reseña-actions button,
-        .reseña-actions form button {
-            transition: all 0.3s ease;
-            padding: 5px 10px;
-            font-size: 0.9rem;
-        }
-
-        .reseña-actions button:hover,
-        .reseña-actions form button:hover {
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-
-        .reseña-actions button:focus,
-        .reseña-actions form button:focus {
-            outline: none;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -86,190 +21,70 @@
             <div class="row justify-content-center">
                 <div class="col-12 col-md-8 mb-5">
                     <div class="card h-100">
-                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" style="max-height: 300px; object-fit: contain; width: 100%;" />
+                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}"
+                            style="max-height: 300px; object-fit: contain; width: 100%;" />
 
                         <div class="card-body p-4">
-                            <h5 class="text-center" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">{{ servicio.name }}</h5>
+                            <h5 class="text-center" style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem;">
+                                {{ servicio.name }}
+                            </h5>
                             <hr>
-                            <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                <strong>Vendido por:</strong> {{ servicio.vendedor.first_name }} {{ servicio.vendedor.last_name }}
-                            </p>
-                            <p class="text-left" style="font-size: 1rem; color: #6c757d; line-height: 1.6;">{{ servicio.descripcion }}</p>
+                            <p class="text-center"><strong>Vendido por:</strong> {{ servicio.vendedor.first_name }}
+                                {{ servicio.vendedor.last_name }}</p>
+                            <p class="text-left">{{ servicio.descripcion }}</p>
                             <hr>
-                            <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                <strong>Categoría:</strong> {{ servicio.categoria }}
-                            </p>
-                            <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                <strong>Zona:</strong> {{ servicio.zona }}
-                            </p>
-                            <p class="text-center" style="font-size: 1rem; color: #343a40;">
-                                <strong>Disponibilidad:</strong> {{ servicio.disponibilidadhoraria }}
-                            </p>
-                            <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">
-                                Precio: ${{ servicio.precio }}
-                            </p>
+                            <p><strong>Categoría:</strong> {{ servicio.categoria }}</p>
+                            <p><strong>Zona:</strong> {{ servicio.zona }}</p>
+                            <p><strong>Disponibilidad:</strong> {{ servicio.disponibilidadhoraria }}</p>
+                            <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">Precio:
+                                ${{servicio.precio }}</p>
                         </div>
 
-                        <!-- Rating section -->
-                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center">
-                                <h4>Calificación promedio: 
-                                    {% if promedio_calificacion %}
-                                        {{ promedio_calificacion|floatformat:1 }} estrellas
-                                    {% else %}
-                                        No disponible
-                                    {% endif %}
-                                </h4>
-                            </div>
-
-                            <div class="text-center">
-                                {% for i in estrellas %}
-                                    <i class="fa fa-star" style="color: gold;"></i>
+                        <!-- Mostrar estrellas de la calificación promedio -->
+                        <div class="calificacion">
+                            <p>Calificación promedio:
+                            <div class="estrellas">
+                                <!-- Estrellas doradas -->
+                                {% for estrella in estrellas_doradas_list %}
+                                    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
                                 {% endfor %}
-                                {% for _ in estrellas %}
-                                    <i class="fa fa-star" style="color: lightgray;"></i>
+                                <!-- Estrellas grises -->
+                                {% for estrella in estrellas_grises_list %}
+                                    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
                                 {% endfor %}
                             </div>
-
-                            <!-- Reseñas -->
-                            <div class="mt-4">
-                                <h5>Reseñas:</h5>
-                                {% if reseñas %}
-                                    {% for reseña in reseñas %}
-                                        <div class="mb-3">
-                                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                                <div>
-                                                    <strong>{{ reseña.usuario.username }}</strong>
-                                                    <span class="ms-2">
-                                                        {% for i in estrellas %}
-                                                            <i class="fa fa-star" style="color: gold;"></i>
-                                                        {% endfor %}
-                                                    </span>
-                                                </div>
-                                                <div class="text-muted" style="font-size: 0.85rem;">Publicado el {{ reseña.fecha|date:"d M Y, H:i" }}</div>
-                                            </div>
-                                            <p>{{ reseña.comentario }}</p>
-                                            
-
-                                            {% if reseña.usuario == user %}
-                                                <!-- Botones para editar y borrar -->
-                                                <div class="reseña-actions">
-                                                    <button class="btn btn-secondary" onclick="mostrarFormularioEdicion({{ reseña.id }})">
-                                                        <i class="fa fa-edit"></i> Editar
-                                                    </button>
-                                                    
-                                                    <!-- Formulario de edición (oculto inicialmente) -->
-                                                    <form method="POST" action="{% url 'editar_resena' reseña.id %}" class="edit-form" id="form-editar-{{ reseña.id }}">
-                                                        {% csrf_token %}
-                                                        <div class="mb-3">
-                                                            <label for="calificacion" class="form-label">Calificación</label>
-                                                            <div class="rating">
-                                                                <input type="radio" name="calificacion" value="5" id="star5_{{ reseña.id }}" {% if reseña.calificacion == 5 %}checked{% endif %}><label for="star5_{{ reseña.id }}" class="fa fa-star"></label>
-                                                                <input type="radio" name="calificacion" value="4" id="star4_{{ reseña.id }}" {% if reseña.calificacion == 4 %}checked{% endif %}><label for="star4_{{ reseña.id }}" class="fa fa-star"></label>
-                                                                <input type="radio" name="calificacion" value="3" id="star3_{{ reseña.id }}" {% if reseña.calificacion == 3 %}checked{% endif %}><label for="star3_{{ reseña.id }}" class="fa fa-star"></label>
-                                                                <input type="radio" name="calificacion" value="2" id="star2_{{ reseña.id }}" {% if reseña.calificacion == 2 %}checked{% endif %}><label for="star2_{{ reseña.id }}" class="fa fa-star"></label>
-                                                                <input type="radio" name="calificacion" value="1" id="star1_{{ reseña.id }}" {% if reseña.calificacion == 1 %}checked{% endif %}><label for="star1_{{ reseña.id }}" class="fa fa-star"></label>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <label for="comentario" class="form-label">Comentario</label>
-                                                            <textarea id="comentario" name="comentario" class="form-control" rows="3">{{ reseña.comentario }}</textarea>
-                                                        </div>
-                                                        <button type="submit" class="btn btn-primary">Actualizar</button>
-                                                    </form>
-
-                                                    <!-- Botón de Borrar -->
-                                                    <form method="POST" action="{% url 'borrar_resena' reseña.id %}" class="mt-2">
-                                                        {% csrf_token %}
-                                                        <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Borrar</button>
-                                                    </form>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                {% else %}
-                                    <p>No hay reseñas aún.</p>
-                                {% endif %}
-                            </div>
+                        </p>
                         </div>
 
-                        <!-- Product actions-->
-                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                            <div class="text-center">
-                                <a class="btn btn-outline-dark mt-auto" href="{% url 'anadir_al_carrito' servicio.id %}">Añadir al carrito</a>
-                            </div>
+                        <!-- Mostrar reseñas -->
+                        <div class="reseñas">
+                            <h3>Reseñas:</h3>
+                            {% for reseña in reseñas %}
+                                <div class="reseña">
+                                    <strong>{{ reseña.usuario.username }} - {{ reseña.fecha|date:"d M Y" }}</strong>
+                                    <div class="calificacion">
+                                        <!-- Estrellas de la reseña -->
+                                        {% for estrella in reseña.estrellas_doradas %}
+                                            <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
+                                        {% endfor %}
+                                        {% for estrella in reseña.estrellas_grises %}
+                                            <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
+                                        {% endfor %}
+                                    </div>
+                                    <p>{{ reseña.texto }}</p>
+                                </div>
+                            {% empty %}
+                                <p>No hay reseñas para este servicio.</p>
+                            {% endfor %}
                         </div>
+
                     </div>
                 </div>
             </div>
-
-            <!-- Formulario para dejar reseña -->
-            {% if user.is_authenticated %}
-                {% if not reseña_existente %}
-                    <div class="mt-4">
-                        <h4>Deja tu reseña</h4>
-                        <form method="POST" action="{% url 'agregar_resena' servicio.id %}" id="form-resena">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="calificacion" class="form-label">Calificación</label>
-                                <div class="rating">
-                                    <input type="radio" name="calificacion" value="5" id="star5"><label for="star5" class="fa fa-star"></label>
-                                    <input type="radio" name="calificacion" value="4" id="star4"><label for="star4" class="fa fa-star"></label>
-                                    <input type="radio" name="calificacion" value="3" id="star3"><label for="star3" class="fa fa-star"></label>
-                                    <input type="radio" name="calificacion" value="2" id="star2"><label for="star2" class="fa fa-star"></label>
-                                    <input type="radio" name="calificacion" value="1" id="star1"><label for="star1" class="fa fa-star"></label>
-                                </div>
-                                <div id="calificacion-error" class="error-message" style="display: none;">
-                                    Debes seleccionar una calificación.
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="comentario" class="form-label">Comentario</label>
-                                <textarea id="comentario" name="comentario" class="form-control" rows="3"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="btn-enviar">Enviar</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <p>Ya has dejado una reseña para este servicio.</p>
-                {% endif %}
-            {% else %}
-                <p>Debes estar registrado para dejar una reseña.</p>
-            {% endif %}
-        </div>
     </section>
 
-    <script>
-        function mostrarFormularioEdicion(id) {
-            const formulario = document.getElementById('form-editar-' + id);
-            formulario.style.display = formulario.style.display === 'none' || formulario.style.display === '' ? 'block' : 'none';
-        }
-
-        const form = document.getElementById('form-resena');
-        const submitButton = document.getElementById('btn-enviar');
-        const calificacionError = document.getElementById('calificacion-error');
-        const estrellas = document.querySelectorAll('input[name="calificacion"]');
-
-        form.addEventListener('submit', function(event) {
-            let calificacionSeleccionada = false;
-
-            estrellas.forEach(function(star) {
-                if (star.checked) {
-                    calificacionSeleccionada = true;
-                }
-            });
-
-            if (!calificacionSeleccionada) {
-                event.preventDefault();
-                calificacionError.style.display = 'block';
-            } else {
-                calificacionError.style.display = 'none';
-            }
-        });
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
-
 {% endblock %}

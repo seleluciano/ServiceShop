@@ -23,8 +23,9 @@ urlpatterns = [
      path('carrito/confirmar/', views.confirmar_carrito, name='confirmar_carrito'),
      path('compras/<int:pk>/', views.Detallecompra.as_view(), name='Detailcompra'),
      path('servicios/', views.filtrar_servicios, name='filtrar_servicios'),
-
-
-
+     path('buscar/', views.buscar_servicios, name='buscar_servicios'),
+     path('compra/<int:compra_id>/agregar_resena/', views.crear_resena, name='agregar_resena'),
+     path('compra/editar_resena/<int:reseña_id>/', views.editar_resena, name='editar_resena'),
+     path('compra/eliminar_resena/<int:reseña_id>/', views.eliminar_resena, name='eliminar_resena'),
 ] 
 

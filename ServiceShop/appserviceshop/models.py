@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
-from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.core.exceptions import ValidationError
 
 class Avatar(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -114,16 +113,12 @@ class Compras_M(models.Model):
         return f"Compra de {self.servicio.nombre} por {self.comprador.username} - Fecha: {self.fecha_compra}, Cantidad: {self.cantidad}"
 
 class Reseña(models.Model):
-    servicio = models.ForeignKey(Servicio, related_name='reseñas', on_delete=models.CASCADE)
+    compra = models.ForeignKey(Compras_M, on_delete=models.CASCADE)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    # calificacion = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    comentario = models.TextField(blank=True, null=True)
-    calificacion = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])  # Para una escala de 1 a 5 estrellas
-    fecha = models.DateTimeField(default=timezone.now)
-    
-
-    class Meta:
-        ordering = ['-fecha']  # Ordenar por la fecha más reciente
+    texto = models.TextField()
+    calificacion = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Calificación de 1 a 5
+    fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Reseña de {self.usuario.username} para {self.servicio.nombre}'
+        return f"Reseña de {self.usuario.username} - Compra #{self.compra.id}"
+

@@ -1,5 +1,6 @@
 from .models import *
 from django.templatetags.static import static
+from django.db.models import Avg,Q  # Necesario para calcular el promedio de las calificaciones
 
 def avatar_processor(request):
     if request.user.is_authenticated:
@@ -16,6 +17,7 @@ def avatar_processor(request):
 def servicios_context(request):
     servicios = Servicio.objects.all()
     return {'servicios': servicios}
+
 
 def ventas_context(request):
     if request.user.is_authenticated:
@@ -52,3 +54,25 @@ def carrito_context(request):
         'total_precio': 0,
         'carrito_cantidad': 0,  # Si el usuario no está autenticado, la cantidad es 0
     }
+def reseñas_usuario(request):
+    """ Context Processor que maneja las reseñas y las calificaciones promedio """
+    if request.user.is_authenticated:
+        # Obtener la reseña del usuario actual (si existe)
+        reseña_usuario = Reseña.objects.filter(usuario=request.user).first()
+
+        # Obtener todas las reseñas de los servicios del usuario
+        reseñas = Reseña.objects.filter(usuario=request.user)
+
+        # Calcular el promedio de las calificaciones
+        calificacion_promedio = reseñas.aggregate(promedio=Avg('calificacion'))['promedio'] or 0
+
+        # Calcular las estrellas (usando colores para representar la calificación)
+        estrellas = ['gold'] * int(calificacion_promedio) + ['lightgray'] * (5 - int(calificacion_promedio))
+
+        return {
+            'reseña_usuario': reseña_usuario,
+            'reseñas': reseñas,
+            'calificacion_promedio': calificacion_promedio,
+            'estrellas': estrellas,
+        }
+    return {}

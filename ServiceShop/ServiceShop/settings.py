@@ -76,6 +76,7 @@ TEMPLATES = [
                 'appserviceshop.context_processors.servicios_context',
                 'appserviceshop.context_processors.ventas_context',
                 'appserviceshop.context_processors.carrito_context',
+                'appserviceshop.context_processors.reseñas_usuario',
 
            ],
         },

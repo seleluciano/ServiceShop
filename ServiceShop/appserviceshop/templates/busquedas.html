@@ -1,0 +1,32 @@
+{% extends "padre.html" %} 
+{% load static %} 
+{% block contenidoQueCambia %}
+
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <h2>Resultados de búsqueda</h2>
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            {% for servicio in servicios %}
+                <div class="col mb-5">
+                    <div class="card h-100">
+                        <!-- Same card structure as before -->
+                        <img class="card-img-top" src="{{ servicio.imagen.url }}" alt="{{ servicio.name }}" />
+                        <div class="card-body p-4">
+                            <h5>{{ servicio.name }}</h5>
+                            <p>{{ servicio.categoria }}</p>
+                            <p>${{ servicio.precio }}</p>
+                        </div>
+                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                            <a class="btn btn-outline-dark mt-auto" href="{% url 'anadir_al_carrito' servicio.id %}">Añadir al carrito</a>
+                            <a class="btn btn-outline-dark mt-auto" href="{% url 'Detail' servicio.id %}">Ver más</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No se encontraron servicios para la búsqueda "{{ request.GET.q }}".</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
