@@ -400,6 +400,27 @@ def crear_resena(request, compra_id):
     # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
     return render(request, 'miscompras.html', {'form': form, 'compra': compra})
 
+
+@login_required
+def rate_user(request, user_id):
+    rated_user = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            rating = form.save(commit=False)
+            rating.rater = request.user
+            rating.rated = rated_user
+            rating.save()
+            return redirect('user_detail', user_id=rated_user.id)
+    else:
+        form = RatingForm()
+    return render(request, 'rate_user.html', {'form': form, 'rated_user': rated_user})
+
+@login_required
+def user_detail(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    ratings = user.received_ratings.all()
+    return render(request, 'user_detail.html', {'user': user, 'ratings': ratings})
 class ModificarReseña(UpdateView):
     model = Reseña
     form_class = ReseñaForm
