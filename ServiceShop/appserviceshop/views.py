@@ -519,36 +519,36 @@ def modificar_reseña_comprador(request, pk):
     
     return render(request, 'resenausuario_form.html', {'form': form, 'reseña': reseña})
 
+@login_required
 def VerReseñasComprador(request, venta_id):
+    # Obtener la venta y las reseñas asociadas a esta venta
     venta = get_object_or_404(Ventas_M, id=venta_id)
     reseñas = ReseñaUsuario.objects.filter(compra__venta=venta)  # Filtra las reseñas por venta
 
     # Verificar si el usuario puede agregar una reseña
     puede_agregar_resena = not ReseñaUsuario.objects.filter(reseñador=request.user, compra__venta=venta).exists()
 
-    # Obtener la reseña del usuario (si existe)
+    # Obtener la reseña del usuario actual (si existe)
     reseña_usuario = ReseñaUsuario.objects.filter(reseñador=request.user, compra__venta=venta).first()
 
-    # Calcular la calificación promedio de las reseñas
+    # Calcular la calificación promedio de todas las reseñas
     calificacion_promedio = 0
     if reseñas.exists():
         calificacion_promedio = sum([reseña.calificacion for reseña in reseñas]) / len(reseñas)
 
-    # Calcular el número de estrellas doradas y grises para el promedio
+    # Calcular las estrellas doradas y grises para la calificación promedio
     estrellas_doradas = int(calificacion_promedio)
     estrellas_grises = 5 - estrellas_doradas
 
-    # Crear las listas de estrellas para el promedio
+    # Crear listas de estrellas para la calificación promedio
     estrellas_doradas_list = ['star.png'] * estrellas_doradas
     estrellas_grises_list = ['star_gray.png'] * estrellas_grises
 
-    # Añadir las estrellas por reseña
+    # Añadir las estrellas doradas y grises para cada reseña individual
     for reseña in reseñas:
-        # Calcular las estrellas para cada reseña individual
         estrellas_doradas_reseña = ['star.png'] * int(reseña.calificacion)
         estrellas_grises_reseña = ['star_gray.png'] * (5 - int(reseña.calificacion))
 
-        # Guardar las estrellas para cada reseña
         reseña.estrellas_doradas = estrellas_doradas_reseña
         reseña.estrellas_grises = estrellas_grises_reseña
 
@@ -560,13 +560,12 @@ def VerReseñasComprador(request, venta_id):
             reseña.reseñador = request.user
             reseña.compra = venta  # Relacionar la reseña con la compra
             reseña.save()
-            # Redirigir o mostrar mensaje de éxito
             messages.success(request, "¡Reseña agregada exitosamente!")
             return redirect('ver_reseñas_comprador', venta_id=venta.id)  # Redirige de nuevo a la vista de reseñas
     else:
         form_comprador = None  # No se pasa el formulario si no puede agregar una reseña
 
-    # Pasar los datos al contexto
+    # Pasar los datos al contexto para la vista
     return render(request, 'verresenacomprador.html', {
         'venta': venta,
         'reseñas': reseñas,
@@ -577,7 +576,6 @@ def VerReseñasComprador(request, venta_id):
         'estrellas_grises_list': estrellas_grises_list,
         'reseña_usuario': reseña_usuario,  # Pasa la reseña del usuario si existe
     })
-
 
 class EliminarReseñaVendedor(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = ReseñaUsuario

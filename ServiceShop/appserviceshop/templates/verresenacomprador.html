@@ -5,63 +5,30 @@
 <br><br>
 <br><br>
 <!-- Título -->
-<h2 style="text-align: center;">RESEÑAS DEL SERVICIO</h2>
-
-<!-- Mostrar la calificación promedio del comprador -->
-<p style="text-align: center;">
+ 
+<h2 style="text-align: center;">RESEÑAS DEL COMPRADOR  {{ reseña_usuario.reseñado.username }}</h2>
+<!-- Mostrar la calificación promedio -->
+<p style="text-align: center;">  
     {% for estrella in estrellas_doradas_list %}
-        <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
+    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
     {% endfor %}
     {% for estrella in estrellas_grises_list %}
-        <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
+    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
     {% endfor %}
     ({{ calificacion_promedio }})
 </p>
-
-<!-- Reseñas del Comprador -->
+<!-- Mostrar "Tu reseña" -->
 <div class="mt-4">
-    {% if reseña_usuario %}
-        <h5>Tu Reseña:</h5>
-        <div class="card mb-3">
-            <div class="card-header">
-                <strong>{{ reseña_usuario.reseñador.username }}</strong>
-                <small class="text-muted">{{ reseña_usuario.fecha|date:"d M Y, H:i" }}</small>
-            </div>
-            <div class="card-body">
-                <p>Calificación:
-                    {% for estrella in reseña.estrellas_doradas %}
-                        <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
-                    {% endfor %}
-                    {% for estrella in reseña.estrellas_grises %}
-                        <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
-                    {% endfor %}
-                </p>
-                <p>{{ reseña_usuario.texto }}</p>
-                <div class="d-flex">
-                    <!-- Botón Editar -->
-                    <a href="{% url 'editar_resena_comprador' reseña_usuario.id %}" class="btn btn-warning btn-sm me-2">
-                        <i class="bi bi-pencil-square"></i> Editar
-                    </a>
-                    <!-- Botón Eliminar -->
-                    <form method="POST" action="{% url 'eliminar_resena_comprador' reseña_usuario.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </button>
-                    </form>
-                </div>
-            </div>
+    {% if not reseña_usuario %}
+    <p>Aún no has dejado una reseña para este comprador, agrégala ahora.</p>
+    <p>¿Te gustaría agregar una reseña?</p>
+    <form method="POST" action="{% url 'crear_resena_comprador' venta.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form_comprador.as_p }}
         </div>
-    {% else %}
-        <p>Aún no has dejado una reseña para este comprador, agrégala ahora.</p>
-        <p>¿Te gustaría agregar una reseña?</p>
-        <form method="POST" action="{% url 'crear_resena_comprador' venta.id %}">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form_comprador.as_p }}
-            </div>
-            <button type="submit" class="btn btn-primary">Enviar Reseña del Comprador</button>
-        </form>
+        <button type="submit" class="btn btn-primary">Enviar Reseña del Comprador</button>
+    </form>
     {% endif %}
 </div>
 
@@ -69,42 +36,45 @@
 <h5>OTRAS RESEÑAS</h5>
 <div class="row">
     {% for reseña in reseñas %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <strong>{{ reseña.reseñador.username }}</strong>
-                    <small class="text-muted">{{ reseña.fecha|date:"d M Y, H:i" }}</small>
-                </div>
-                <div class="card-body">
-                    <p>Calificación:
-                        {% for estrella in reseña.estrellas_doradas %}
-                            <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada" style="width: 20px; height: 20px;">
-                        {% endfor %}
-                        {% for estrella in reseña.estrellas_grises %}
-                            <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
-                        {% endfor %}
-                    </p>
-                    <p>{{ reseña.texto }}</p>
-                </div>
-                <div class="card-footer">
-                    {% if reseña.reseñador == request.user %}
-                        <!-- Botón Editar -->
-                        <a href="{% url 'editar_resena_comprador' reseña.id %}" class="btn btn-warning btn-sm me-2">
-                            <i class="bi bi-pencil-square"></i> Editar
-                        </a>
-                        <!-- Botón Eliminar -->
-                        <form method="POST" action="{% url 'eliminar_resena_comprador' reseña.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="bi bi-trash"></i> Eliminar
-                            </button>
-                        </form>
-                    {% endif %}
-                </div>
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <strong>{{ reseña.reseñador.username }}</strong>
+                <small class="text-muted">{{ reseña.fecha|date:"d M Y, H:i" }}</small>
+            </div>
+            <div class="card-body">
+                <p>Calificación:
+                    {% for estrella in reseña.estrellas_doradas %}
+                    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
+                        style="width: 20px; height: 20px;">
+                    {% endfor %}
+                    {% for estrella in reseña.estrellas_grises %}
+                    <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris" style="width: 20px; height: 20px;">
+                    {% endfor %}
+                </p>
+                <p>{{ reseña.texto }}</p>
+            </div>
+            <div class="card-footer">
+                {% if reseña.reseñador == request.user %}
+                
+                <!-- Botón Editar -->
+                <a href="{% url 'editar_resena_comprador' reseña.id %}" class="btn btn-warning btn-sm me-2">
+                    <i class="bi bi-pencil-square"></i> Editar
+                </a>
+                <!-- Botón Eliminar -->
+                <form method="POST" action="{% url 'eliminar_resena_comprador' reseña.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+                <p style="text-align: center;">TU RESEÑA</p>
+                {% endif %}
             </div>
         </div>
+    </div>
     {% empty %}
-        <p>No hay reseñas para este comprador.</p>
+    <p>No hay reseñas para este comprador.</p>
     {% endfor %}
 </div>
 
