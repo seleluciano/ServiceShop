@@ -428,47 +428,44 @@ def crear_resena_vendedor(request, compra_id):
 
 @login_required
 def crear_reserva_comprador(request, compra_id):
-    # Obtener la venta correspondiente al ID de la compra
-    venta = get_object_or_404(Ventas_M, id=compra_id)
+    # Obtener la compra correspondiente al ID
+    compra = get_object_or_404(Compras_M, id=compra_id)
     
-    # Obtener el vendedor asociado a esta venta
-    vendedor = venta.servicio.vendedor
+    # Obtener el vendedor asociado a esta compra
+    vendedor = compra.servicio.vendedor
 
     # Verificar si el usuario ya ha dejado una reseña para este vendedor
-    reseña_existente = Reseña.objects.filter(compra=venta, reseñador=request.user).first()
-    
+    reseña_existente = ReseñaUsuario.objects.filter(compra=compra, reseñador=request.user).first()
+
     if reseña_existente:
-        # Si ya existe una reseña, redirigir al usuario a la vista de mis compras
+        # Si ya existe una reseña, redirigir al usuario
         messages.info(request, "Ya has dejado una reseña para este vendedor.")
-        return redirect('miscompras')  # O redirigir a otra vista como 'miscompras' o 'detalle_compra'
+        return redirect('miscompras')  # Cambia por la vista adecuada
 
     if request.method == 'POST':
         form = ReseñaUsuarioForm(request.POST)
         if form.is_valid():
-            # Si el formulario es válido, creamos la reseña
+            # Crear la reseña si el formulario es válido
             reseña_vendedor = form.save(commit=False)
-            reseña_vendedor.reseñador = request.user  # El usuario que deja la reseña
-            reseña_vendedor.reseñado = vendedor  # El vendedor que recibe la reseña
-            reseña_vendedor.compra = venta  # Relacionamos la reseña con la compra
+            reseña_vendedor.reseñador = request.user  # Usuario que deja la reseña
+            reseña_vendedor.reseñado = vendedor  # Usuario que recibe la reseña
+            reseña_vendedor.compra = compra  # Relacionar con la compra
+            reseña_vendedor.tipo_reseña = 'venta'  # Definir el tipo de reseña
             reseña_vendedor.save()
 
-            # Mensaje de éxito al guardar la reseña
             messages.success(request, "¡Reseña del vendedor guardada correctamente!")
-            # Redirigir a la vista de mis compras (o a la vista que desees)
-            return redirect('miscompras')  # Puedes redirigir a 'detalle_compra' o cualquier otra vista que necesites
+            return redirect('miscompras')  # Cambia por la vista que corresponda
         else:
-            # Si el formulario no es válido, mostramos un mensaje de error
             messages.error(request, "Hubo un error al guardar tu reseña. Por favor, revisa los campos.")
     else:
-        # Si el método no es POST, creamos un formulario vacío
         form = ReseñaUsuarioForm()
 
-    # Renderizamos la plantilla con el formulario y la venta
-    return render(request, 'miscompras.html', {
+    # Renderizar la plantilla
+    return render(request, 'crear_resena_comprador.html', {
         'form_comprador': form,
-        'venta': venta,
+        'compra': compra,
         'vendedor': vendedor,
-        'puede_agregar_resena': not reseña_existente  # Puedes decidir si permitir agregar una reseña
+        'puede_agregar_resena': not reseña_existente
     })
 
 @login_required
@@ -504,20 +501,23 @@ def modificar_reseña_vendedor(request, pk):
     return render(request, 'resenausuario_form.html', {'form': form, 'reseña': reseña})
 
 @login_required
-def modificar_reseña_comprador(request, pk):
-    reseña = get_object_or_404(ReseñaUsuario, pk=pk, usuario=request.user)
-    if request.method == "POST":
+def modificar_reseña_comprador(request, pk):  # Cambia reseña_id a pk
+    # Obtener la reseña por ID
+    reseña = get_object_or_404(ReseñaUsuario, id=pk, reseñador=request.user)
+
+    if request.method == 'POST':
         form = ReseñaUsuarioForm(request.POST, instance=reseña)
         if form.is_valid():
             form.save()
             messages.success(request, "Reseña modificada correctamente.")
-            return redirect('misventas')
+            return redirect('misventas')  # Cambiar por la vista adecuada
         else:
             messages.error(request, "Hubo un error al modificar la reseña.")
     else:
-        form = ReseñaForm(instance=reseña)
-    
+        form = ReseñaUsuarioForm(instance=reseña)
+
     return render(request, 'resenausuario_form.html', {'form': form, 'reseña': reseña})
+
 
 @login_required
 def VerReseñasComprador(request, venta_id):

@@ -27,12 +27,12 @@ urlpatterns = [
      path('compra/<int:compra_id>/agregar_resena/', views.crear_resena, name='agregar_resena'),
      path('compra/modificar_resena/<int:pk>/', views. modificar_reseña, name='modificar_resena'),
      path('compra/eliminar_resena/<int:pk>/', views.EliminarReseña.as_view(), name='eliminar_resena'),
-     path('compra/<int:vendedor_id>/agregar_resena/', views.crear_resena_vendedor, name='crear_resena_vendedor'),
+     path('compra/<int:compra_id>/agregar_resena/', views.crear_resena_vendedor, name='crear_resena_vendedor'),
      path('compra/modificar_resena_vendedor/<int:pk>/', views. modificar_reseña_vendedor, name='modificar_resena_vendedor'),
      path('compra/eliminar_resena_vendedor/<int:pk>/', views.EliminarReseñaVendedor.as_view(), name='eliminar_resena_vendedor'),
      path('ventas/<int:venta_id>/reseñas/', views.VerReseñasComprador, name='ver_reseñas_comprador'),
-     path('ventas/<int:venta_id>/reseña/agregar/', views.crear_reserva_comprador, name='agregar_reseña_comprador'),
-     path('reseña/<int:reseña_id>/editar/', views.modificar_reseña_comprador, name='editar_resena_comprador'),
-     path('reseña/<int:reseña_id>/eliminar/', views.EliminarReseñaComprador.as_view(), name='eliminar_resena_comprador'),
+     path('ventas/<int:compra_id>/reseña/agregar/', views.crear_reserva_comprador, name='crear_resena_comprador'),
+     path('reseña/<int:pk>/editar/', views.modificar_reseña_comprador, name='editar_resena_comprador'),
+     path('reseña/<int:pk>/eliminar/', views.EliminarReseñaComprador.as_view(), name='eliminar_resena_comprador'),
 
 ]
