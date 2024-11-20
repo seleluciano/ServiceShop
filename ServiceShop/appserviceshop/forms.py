@@ -60,14 +60,14 @@ class ServiceForm(forms.ModelForm):
 class ReseñaForm(forms.ModelForm):
     class Meta:
         model = Reseña
-        fields = ['calificacion', 'comentario']
+        fields = ['calificacion', 'texto']
         widgets = {
-            'calificacion': forms.RadioSelect(choices=[(i, f'{i} estrellas') for i in range(1, 6)]),
-            'comentario': forms.Textarea(attrs={'placeholder': 'Escribe tu comentario aquí'})
+            'calificacion': forms.Select(choices=[(i, f'{i} estrellas') for i in range(1, 6)]),  # Dropdown de 1 a 5
+            'texto': forms.Textarea(attrs={'placeholder': 'Escribe tu comentario aquí', 'rows': 4, 'cols': 40})  # Campo de texto con un tamaño adecuado
         }
         labels = {
             'calificacion': 'Calificación',
-            'comentario': 'Comentario',
+            'texto': 'Comentario',
         }
 
     # Validación personalizada para asegurar que se selecciona una calificación
