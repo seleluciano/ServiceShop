@@ -75,3 +75,23 @@ class ReseñaForm(forms.ModelForm):
         if not calificacion:
             raise ValidationError('Debes seleccionar una calificación.')
         return calificacion
+
+class ReseñaUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = ReseñaUsuario
+        fields = ['calificacion', 'texto']
+        widgets = {
+            'calificacion': forms.Select(choices=[(i, f'{i} estrellas') for i in range(1, 6)]),  # Dropdown de 1 a 5
+            'texto': forms.Textarea(attrs={'placeholder': 'Escribe tu comentario aquí', 'rows': 4, 'cols': 40})  # Campo de texto con un tamaño adecuado
+        }
+        labels = {
+            'calificacion': 'Calificación',
+            'texto': 'Comentario',
+        }
+
+    # Validación personalizada para asegurar que se selecciona una calificación
+    def clean_calificacion(self):
+        calificacion = self.cleaned_data.get('calificacion')
+        if not calificacion:
+            raise ValidationError('Debes seleccionar una calificación.')
+        return calificacion

@@ -25,34 +25,34 @@
                             ${{ compra.servicio.precio }}</p>
                     </div>
 
-                  
-                    <!-- Reseña del usuario -->
+                    <!-- Reseña del servicio -->
                     <div class="mt-4">
-                        {% if reseña_usuario %}
-                        <h5>Tu Reseña:</h5>
+                        {% if reseña_servicio %}
+                        <h5>Tu Reseña del servicio:</h5>
                         <div class="mb-3 border p-3">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <strong>{{ reseña_usuario.usuario.username }}</strong>
-                                <small class="text-muted">{{ reseña_usuario.fecha|date:"d M Y, H:i" }}</small>
+                                <strong>{{ reseña_servicio.usuario.username }}</strong>
+                                <small class="text-muted">{{ reseña_servicio.fecha|date:"d M Y, H:i" }}</small>
                             </div>
                             <p>Calificación:
-                                {% for estrella in estrellas_doradas_reseña %}
+                                {% for estrella in estrellas_doradas_servicio %}
                                 <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
                                     style="width: 20px; height: 20px;">
                                 {% endfor %}
-                                {% for estrella in estrellas_grises_reseña %}
+                                {% for estrella in estrellas_grises_servicio %}
                                 <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris"
                                     style="width: 20px; height: 20px;">
                                 {% endfor %}
                             </p>
-                            <p>{{ reseña_usuario.texto }}</p>
+                            <p>{{ reseña_servicio.texto }}</p>
                             <div class="d-flex">
                                 <!-- Botón Editar -->
-                                <a href="{% url 'modificar_resena' reseña_usuario.id %}" class="btn btn-warning btn-sm me-2">
+                                <a href="{% url 'modificar_resena' reseña_servicio.id %}"
+                                    class="btn btn-warning btn-sm me-2">
                                     <i class="bi bi-pencil-square"></i> Editar
                                 </a>
                                 <!-- Botón Eliminar -->
-                                <form method="POST" action="{% url 'eliminar_resena' reseña_usuario.id %}">
+                                <form method="POST" action="{% url 'eliminar_resena' reseña_servicio.id %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger btn-sm">
                                         <i class="bi bi-trash"></i> Eliminar
@@ -61,19 +61,67 @@
                             </div>
                         </div>
                         {% else %}
-                        <p>No has dejado una reseña para este servicio.</p>
+                        <p>No has dejado una reseña para este servicio, agrégala ahora.</p>
+                        <hr>
+                        <h5>Agregar Reseña para el servicio:</h5>
+                        <form method="POST" action="{% url 'agregar_resena' compra.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form_servicio.as_p }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar Reseña</button>
+                        </form>
                         {% endif %}
                     </div>
 
-                    <!-- Formulario para nueva reseña -->
-                    {% if form %}
-                    <h5>Agregar Reseña:</h5>
-                    <form method="POST" action="{% url 'agregar_resena' compra.id %}">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Enviar Reseña</button>
-                    </form>
-                    {% endif %}
+                    <!-- Reseña del vendedor -->
+                    <div class="mt-4">
+                        {% if reseña_vendedor %}
+                        <h5>Reseña del Vendedor:</h5>
+                        <div class="mb-3 border p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong>{{ reseña_vendedor.usuario.username }}</strong>
+                                <small class="text-muted">{{ reseña_vendedor.fecha|date:"d M Y, H:i" }}</small>
+                            </div>
+                            <p>Calificación:
+                                {% for estrella in estrellas_doradas_vendedor %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                                {% for estrella in estrellas_grises_vendedor %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                            </p>
+                            <p>{{ reseña_vendedor.texto }}</p>
+                            <div class="d-flex">
+                                <!-- Botón Editar -->
+                                <a href="{% url 'modificar_resena_vendedor' reseña_vendedor.id %}"
+                                    class="btn btn-warning btn-sm me-2">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <!-- Botón Eliminar -->
+                                <form method="POST" action="{% url 'eliminar_resena_vendedor' reseña_vendedor.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p>Aún no has dejado una reseña para este vendedor, agrégala ahora.</p>
+                        <p>¿Te gustaría agregar una reseña?</p>
+                        <form method="POST" action="{% url 'crear_resena_vendedor' compra.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form_vendedor.as_p }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Enviar Reseña del Vendedor</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
                 </div>
             </div>
         </div>

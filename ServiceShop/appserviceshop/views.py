@@ -16,6 +16,7 @@ from .models import *
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import update_session_auth_hash
 from django.db.models import Avg,Q  # Necesario para calcular el promedio de las calificaciones
+from django.views import View
 
 @login_required
 def Inicio(request):
@@ -389,7 +390,7 @@ def crear_resena(request, compra_id):
             # Mensaje de éxito
             messages.success(request, "¡Reseña guardada correctamente!")
             # Renderizar nuevamente el detalle de la compra con la nueva reseña guardada
-            return render(request, 'compra_detalle.html', {'compra': compra, 'form': form})
+            return redirect('miscompras')
         else:
             # Mensaje de error si el formulario no es válido
             messages.error(request, "Hubo un error al guardar tu reseña. Por favor, revisa los campos.")
@@ -398,6 +399,77 @@ def crear_resena(request, compra_id):
 
     # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
     return render(request, 'miscompras.html', {'form': form, 'compra': compra})
+
+@login_required
+def crear_resena_vendedor(request, compra_id):
+    compra = get_object_or_404(Compras_M, id=compra_id)
+    vendedor = compra.servicio.vendedor  # Obtener el vendedor de la compra
+
+    if request.method == 'POST':
+        form = ReseñaUsuarioForm(request.POST)
+        if form.is_valid():
+            reseña_vendedor = form.save(commit=False)
+            reseña_vendedor.reseñador = request.user  # Usuario que está dejando la reseña
+            reseña_vendedor.reseñado = vendedor  # El vendedor que está recibiendo la reseña
+            reseña_vendedor.compra = compra  # Asegúrate de que la reseña esté asociada a la compra
+            reseña_vendedor.save()
+            # Mensaje de éxito
+            messages.success(request, "¡Reseña del vendedor guardada correctamente!")
+            # Redirigir a la vista de compras o al detalle de la compra
+            return redirect('miscompras')  # O puedes redirigir a una vista de detalle de la compra
+        else:
+            # Mensaje de error si el formulario no es válido
+            messages.error(request, "Hubo un error al guardar tu reseña. Por favor, revisa los campos.")
+    else:
+        form = ReseñaUsuarioForm()
+
+    # Si el formulario no es válido o es un GET, renderizar la plantilla con el formulario
+    return render(request, 'miscompras.html', {'form': form, 'compra': compra, 'vendedor': vendedor})
+
+@login_required
+def crear_reserva_comprador(request, compra_id):
+    # Obtener la venta correspondiente al ID de la compra
+    venta = get_object_or_404(Ventas_M, id=compra_id)
+    
+    # Obtener el vendedor asociado a esta venta
+    vendedor = venta.servicio.vendedor
+
+    # Verificar si el usuario ya ha dejado una reseña para este vendedor
+    reseña_existente = Reseña.objects.filter(compra=venta, reseñador=request.user).first()
+    
+    if reseña_existente:
+        # Si ya existe una reseña, redirigir al usuario a la vista de mis compras
+        messages.info(request, "Ya has dejado una reseña para este vendedor.")
+        return redirect('miscompras')  # O redirigir a otra vista como 'miscompras' o 'detalle_compra'
+
+    if request.method == 'POST':
+        form = ReseñaUsuarioForm(request.POST)
+        if form.is_valid():
+            # Si el formulario es válido, creamos la reseña
+            reseña_vendedor = form.save(commit=False)
+            reseña_vendedor.reseñador = request.user  # El usuario que deja la reseña
+            reseña_vendedor.reseñado = vendedor  # El vendedor que recibe la reseña
+            reseña_vendedor.compra = venta  # Relacionamos la reseña con la compra
+            reseña_vendedor.save()
+
+            # Mensaje de éxito al guardar la reseña
+            messages.success(request, "¡Reseña del vendedor guardada correctamente!")
+            # Redirigir a la vista de mis compras (o a la vista que desees)
+            return redirect('miscompras')  # Puedes redirigir a 'detalle_compra' o cualquier otra vista que necesites
+        else:
+            # Si el formulario no es válido, mostramos un mensaje de error
+            messages.error(request, "Hubo un error al guardar tu reseña. Por favor, revisa los campos.")
+    else:
+        # Si el método no es POST, creamos un formulario vacío
+        form = ReseñaUsuarioForm()
+
+    # Renderizamos la plantilla con el formulario y la venta
+    return render(request, 'miscompras.html', {
+        'form_comprador': form,
+        'venta': venta,
+        'vendedor': vendedor,
+        'puede_agregar_resena': not reseña_existente  # Puedes decidir si permitir agregar una reseña
+    })
 
 @login_required
 def modificar_reseña(request, pk):
@@ -415,10 +487,114 @@ def modificar_reseña(request, pk):
     
     return render(request, 'resena_form.html', {'form': form, 'reseña': reseña})
 
+@login_required
+def modificar_reseña_vendedor(request, pk):
+    reseña = get_object_or_404(ReseñaUsuario, pk=pk, usuario=request.user)
+    if request.method == "POST":
+        form = ReseñaUsuarioForm(request.POST, instance=reseña)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reseña modificada correctamente.")
+            return redirect('miscompras')
+        else:
+            messages.error(request, "Hubo un error al modificar la reseña.")
+    else:
+        form = ReseñaForm(instance=reseña)
+    
+    return render(request, 'resenausuario_form.html', {'form': form, 'reseña': reseña})
+
+@login_required
+def modificar_reseña_comprador(request, pk):
+    reseña = get_object_or_404(ReseñaUsuario, pk=pk, usuario=request.user)
+    if request.method == "POST":
+        form = ReseñaUsuarioForm(request.POST, instance=reseña)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reseña modificada correctamente.")
+            return redirect('misventas')
+        else:
+            messages.error(request, "Hubo un error al modificar la reseña.")
+    else:
+        form = ReseñaForm(instance=reseña)
+    
+    return render(request, 'resenausuario_form.html', {'form': form, 'reseña': reseña})
+
+def VerReseñasComprador(request, venta_id):
+    venta = get_object_or_404(Ventas_M, id=venta_id)
+    reseñas = ReseñaUsuario.objects.filter(compra__venta=venta)  # Filtra las reseñas por venta
+
+    # Verificar si el usuario puede agregar una reseña
+    puede_agregar_resena = not ReseñaUsuario.objects.filter(reseñador=request.user, compra__venta=venta).exists()
+
+    # Obtener la reseña del usuario (si existe)
+    reseña_usuario = ReseñaUsuario.objects.filter(reseñador=request.user, compra__venta=venta).first()
+
+    # Calcular la calificación promedio de las reseñas
+    calificacion_promedio = 0
+    if reseñas.exists():
+        calificacion_promedio = sum([reseña.calificacion for reseña in reseñas]) / len(reseñas)
+
+    # Calcular el número de estrellas doradas y grises para el promedio
+    estrellas_doradas = int(calificacion_promedio)
+    estrellas_grises = 5 - estrellas_doradas
+
+    # Crear las listas de estrellas para el promedio
+    estrellas_doradas_list = ['star.png'] * estrellas_doradas
+    estrellas_grises_list = ['star_gray.png'] * estrellas_grises
+
+    # Añadir las estrellas por reseña
+    for reseña in reseñas:
+        # Calcular las estrellas para cada reseña individual
+        estrellas_doradas_reseña = ['star.png'] * int(reseña.calificacion)
+        estrellas_grises_reseña = ['star_gray.png'] * (5 - int(reseña.calificacion))
+
+        # Guardar las estrellas para cada reseña
+        reseña.estrellas_doradas = estrellas_doradas_reseña
+        reseña.estrellas_grises = estrellas_grises_reseña
+
+    # Crear el formulario solo si el usuario puede agregar una reseña
+    if puede_agregar_resena:
+        form_comprador = ReseñaUsuarioForm(request.POST or None)  # Usar POST si se envía el formulario
+        if request.method == 'POST' and form_comprador.is_valid():
+            reseña = form_comprador.save(commit=False)
+            reseña.reseñador = request.user
+            reseña.compra = venta  # Relacionar la reseña con la compra
+            reseña.save()
+            # Redirigir o mostrar mensaje de éxito
+            messages.success(request, "¡Reseña agregada exitosamente!")
+            return redirect('ver_reseñas_comprador', venta_id=venta.id)  # Redirige de nuevo a la vista de reseñas
+    else:
+        form_comprador = None  # No se pasa el formulario si no puede agregar una reseña
+
+    # Pasar los datos al contexto
+    return render(request, 'verresenacomprador.html', {
+        'venta': venta,
+        'reseñas': reseñas,
+        'puede_agregar_resena': puede_agregar_resena,
+        'form_comprador': form_comprador,
+        'calificacion_promedio': calificacion_promedio,
+        'estrellas_doradas_list': estrellas_doradas_list,
+        'estrellas_grises_list': estrellas_grises_list,
+        'reseña_usuario': reseña_usuario,  # Pasa la reseña del usuario si existe
+    })
+
+
+class EliminarReseñaVendedor(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = ReseñaUsuario
+    template_name = 'confirmar_eliminacion_resena_usuario.html'  # Asegúrate de crear este template
+    success_url = reverse_lazy('miscompras')  # Cambia esto a la URL a la que quieres redirigir
+    success_message = "Reseña eliminada correctamente."  # Mensaje de éxito al eliminar la reseña
+
 class EliminarReseña(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
     model = Reseña
     template_name = 'confirmar_eliminacion_resena.html'  # Asegúrate de crear este template
     success_url = reverse_lazy('miscompras')  # Cambia esto a la URL a la que quieres redirigir
+    success_message = "Reseña eliminada correctamente."  # Mensaje de éxito al eliminar la reseña
+
+class EliminarReseñaComprador(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = ReseñaUsuario
+    template_name = 'confirmar_eliminacion_resena_usuario.html'  # Asegúrate de crear este template
+    success_url = reverse_lazy('misventas')  # Cambia esto a la URL a la que quieres redirigir
     success_message = "Reseña eliminada correctamente."  # Mensaje de éxito al eliminar la reseña
 
 class Detalleservicio(LoginRequiredMixin, DetailView):
@@ -461,6 +637,29 @@ class Detalleservicio(LoginRequiredMixin, DetailView):
             reseña.estrellas_doradas = estrellas_doradas_reseña
             reseña.estrellas_grises = estrellas_grises_reseña
 
+        # Obtener las reseñas del vendedor
+        vendedor = servicio.vendedor
+        reseñas_vendedor = ReseñaUsuario.objects.filter(reseñado=vendedor)
+        
+        # Calcular la calificación promedio del vendedor
+        calificacion_promedio_vendedor = reseñas_vendedor.aggregate(promedio=Avg('calificacion'))['promedio'] or 0
+
+        # Calcular el número de estrellas doradas y grises para el vendedor
+        estrellas_doradas_vendedor = int(calificacion_promedio_vendedor)
+        estrellas_grises_vendedor = 5 - estrellas_doradas_vendedor
+
+        # Crear las listas de estrellas del vendedor
+        estrellas_doradas_vendedor_list = ['star.png'] * estrellas_doradas_vendedor
+        estrellas_grises_vendedor_list = ['star_gray.png'] * estrellas_grises_vendedor
+
+        # Pasar las reseñas del vendedor y la calificación promedio al contexto
+        context.update({
+            'reseñas_vendedor': reseñas_vendedor,
+            'calificacion_promedio_vendedor': calificacion_promedio_vendedor,
+            'estrellas_doradas_vendedor_list': estrellas_doradas_vendedor_list,
+            'estrellas_grises_vendedor_list': estrellas_grises_vendedor_list,
+        })
+
         return context
 
 class Detallecompra(LoginRequiredMixin, DetailView):
@@ -471,44 +670,49 @@ class Detallecompra(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         compra = self.object
         servicio = compra.servicio
+        vendedor = servicio.vendedor
 
-        # Verificar si el usuario ya tiene una reseña para este servicio
-        reseña_usuario = Reseña.objects.filter(compra=compra, usuario=self.request.user).first()
+        # Verificar si el comprador ya dejó una reseña al servicio
+        reseña_servicio = Reseña.objects.filter(compra=compra, usuario=self.request.user).first()
 
-        # Si no existe una reseña del usuario, preparamos el formulario
-        form = ReseñaForm() if not reseña_usuario else None
+        # Formulario para nueva reseña al servicio si no existe
+        form_servicio = ReseñaForm() if not reseña_servicio else None
 
-        # Preparar las estrellas de la reseña del usuario
-        if reseña_usuario:
-            estrellas_doradas_reseña = ['star.png'] * int(reseña_usuario.calificacion)
-            estrellas_grises_reseña = ['star_gray.png'] * (5 - int(reseña_usuario.calificacion))
+        # Preparar estrellas para la reseña del servicio
+        if reseña_servicio:
+            estrellas_doradas_servicio = ['star.png'] * int(reseña_servicio.calificacion)
+            estrellas_grises_servicio = ['star_gray.png'] * (5 - int(reseña_servicio.calificacion))
         else:
-            estrellas_doradas_reseña = []
-            estrellas_grises_reseña = []
+            estrellas_doradas_servicio = []
+            estrellas_grises_servicio = []
 
-        # Obtener las reseñas del servicio (no la reseña del usuario, sino las generales)
-        reseñas = Reseña.objects.filter(compra__servicio=servicio)
+        # Verificar si el comprador ya dejó una reseña al vendedor
+        reseña_vendedor = ReseñaUsuario.objects.filter(reseñador=self.request.user, reseñado=vendedor).first()
 
-        # Calcular la calificación promedio y estrellas de reseñas generales
-        calificacion_promedio = reseñas.aggregate(promedio=Avg('calificacion'))['promedio'] or 0
-        estrellas_doradas = int(calificacion_promedio)
-        estrellas_grises = 5 - estrellas_doradas
+        # Formulario para nueva reseña al vendedor si no existe
+        form_vendedor = ReseñaUsuarioForm() if not reseña_vendedor else None
 
-        # Crear las listas de estrellas
-        estrellas_doradas_list = ['star.png'] * estrellas_doradas
-        estrellas_grises_list = ['star_gray.png'] * estrellas_grises
+        # Preparar estrellas para la reseña del vendedor
+        if reseña_vendedor:
+            estrellas_doradas_vendedor = ['star.png'] * int(reseña_vendedor.calificacion)
+            estrellas_grises_vendedor = ['star_gray.png'] * (5 - int(reseña_vendedor.calificacion))
+        else:
+            estrellas_doradas_vendedor = []
+            estrellas_grises_vendedor = []
 
-        # Pasar todos los datos al contexto
+        # Pasar los datos al contexto
         context.update({
+            'reseña_servicio': reseña_servicio,
+            'form_servicio': form_servicio,
+            'estrellas_doradas_servicio': estrellas_doradas_servicio,
+            'estrellas_grises_servicio': estrellas_grises_servicio,
+            'reseña_vendedor': reseña_vendedor,
+            'form_vendedor': form_vendedor,
+            'estrellas_doradas_vendedor': estrellas_doradas_vendedor,
+            'estrellas_grises_vendedor': estrellas_grises_vendedor,
             'compra': compra,
-            'form': form,  # Formulario para agregar reseña
-            'reseña_usuario': reseña_usuario,  # Información de la reseña del usuario actual
-            'calificacion_promedio': calificacion_promedio,
-            'estrellas_doradas_list': estrellas_doradas_list,
-            'estrellas_grises_list': estrellas_grises_list,
-            'estrellas_doradas_reseña': estrellas_doradas_reseña,
-            'estrellas_grises_reseña': estrellas_grises_reseña,
-            'reseñas': reseñas,
+            'servicio': servicio,
+            'vendedor': vendedor,
         })
 
         return context

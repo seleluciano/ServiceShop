@@ -18,28 +18,42 @@
                             {{ servicio.name }}
                         </h5>
                         <hr>
-                        <p class="text-center"><strong>Vendido por:</strong> {{ servicio.vendedor.first_name }}
-                            {{ servicio.vendedor.last_name }}</p>
-                        <p class="text-left">{{ servicio.descripcion }}</p>
+                        <p class="text-center"><strong>Vendido por:</strong> {{ servicio.vendedor.first_name }} {{servicio.vendedor.last_name }}</p>
+                        <!-- Mostrar la calificación promedio del vendedor -->
+                        <div class="calificacion" style="text-align: center;">
+                            <div class="estrellas">
+                                <!-- Estrellas doradas del vendedor -->
+                                {% for estrella in estrellas_doradas_vendedor_list %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                                <!-- Estrellas grises del vendedor -->
+                                {% for estrella in estrellas_grises_vendedor_list %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <p class="text-left">Descripcion: {{ servicio.descripcion }}</p>
                         <hr>
                         <p><strong>Categoría:</strong> {{ servicio.categoria }}</p>
                         <p><strong>Zona:</strong> {{ servicio.zona }}</p>
                         <p><strong>Disponibilidad:</strong> {{ servicio.disponibilidadhoraria }}</p>
-                        <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">Precio:
-                            ${{servicio.precio }}</p>
+                        <p class="text-center" style="font-size: 1.25rem; font-weight: 700;">Precio: ${{ servicio.precio
+                            }}</p>
                     </div>
 
-                    <!-- Mostrar estrellas de la calificación promedio -->
-                    {% for reseña in reseñas %}
+                    <!-- Mostrar la calificación promedio del servicio -->
                     <div class="calificacion">
-                        <p>Calificación promedio:
+                        <p>Calificación promedio del servicio:
                         <div class="estrellas">
-                            <!-- Estrellas doradas -->
+                            <!-- Estrellas doradas del servicio -->
                             {% for estrella in estrellas_doradas_list %}
                             <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
                                 style="width: 20px; height: 20px;">
                             {% endfor %}
-                            <!-- Estrellas grises -->
+                            <!-- Estrellas grises del servicio -->
                             {% for estrella in estrellas_grises_list %}
                             <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris"
                                 style="width: 20px; height: 20px;">
@@ -47,14 +61,11 @@
                         </div>
                         </p>
                     </div>
-                    {% empty %}
-                    <p>Sin calificacion</p>
-                    {% endfor %}
-                    <!-- Mostrar reseñas -->
-                    <div class="reseñas">
 
+                    <!-- Mostrar reseñas del servicio -->
+                    <div class="reseñas">
+                        <h3>Reseñas del Servicio:</h3>
                         {% for reseña in reseñas %}
-                        <h3>Reseñas:</h3>
                         <div class="reseña">
                             <strong>{{ reseña.usuario.username }} - {{ reseña.fecha|date:"d M Y" }}</strong>
                             <div class="calificacion">
@@ -72,6 +83,29 @@
                         </div>
                         {% empty %}
                         <p>No hay reseñas para este servicio.</p>
+                        {% endfor %}
+                    </div>
+                    <!-- Mostrar reseñas del vendedor -->
+                    <div class="reseñas">
+                        <h3>Reseñas del Vendedor:</h3>
+                        {% for reseña in reseñas_vendedor %}
+                        <div class="reseña">
+                            <strong>{{ reseña.reseñador.username }} - {{ reseña.fecha|date:"d M Y" }}</strong>
+                            <div class="calificacion">
+                                <!-- Estrellas de la reseña del vendedor -->
+                                {% for estrella in reseña.estrellas_doradas %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella dorada"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                                {% for estrella in reseña.estrellas_grises %}
+                                <img src="{% static 'img/' %}{{ estrella }}" alt="Estrella gris"
+                                    style="width: 20px; height: 20px;">
+                                {% endfor %}
+                            </div>
+                            <p>{{ reseña.texto }}</p>
+                        </div>
+                        {% empty %}
+                        <p>No hay reseñas para este vendedor.</p>
                         {% endfor %}
                     </div>
                     <div class="text-center">

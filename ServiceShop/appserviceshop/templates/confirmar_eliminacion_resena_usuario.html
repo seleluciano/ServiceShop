@@ -1,0 +1,23 @@
+{% extends "padre.html" %}
+{% block contenidoQueCambia %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 mb-5">
+                <div class="card h-100">
+                    <div class="card-body p-4">
+                        <h5 class="text-center">Confirmación de Eliminación</h5>
+                        <hr>
+                        <p>¿Estás seguro de que deseas eliminar esta reseña?</p>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                            <a href="{% url 'inicio' %}" class="btn btn-secondary">Cancelar</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

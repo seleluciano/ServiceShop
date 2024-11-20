@@ -90,7 +90,7 @@ class Ventas_M(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Venta de {self.servicio.nombre} por {self.vendedor.username} - Estado: {self.estado} - Cantidad: {self.cantidad}"
+        return f"Venta de {self.servicio.name} por {self.vendedor.username} - Estado: {self.estado} - Cantidad: {self.cantidad}"
 
 
 class Compras_M(models.Model):
@@ -123,14 +123,17 @@ class Reseña(models.Model):
         return f"Reseña de {self.usuario.username} - Compra #{self.compra.id}"
 
 class ReseñaUsuario(models.Model):
-    reseñado = models.ForeignKey(User, related_name="reseñas_recibidas", on_delete=models.CASCADE)
-    reseñador = models.ForeignKey(User, related_name="reseñas_realizadas", on_delete=models.CASCADE)
-    calificacion = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Calificación de 1 a 5
-    texto = models.TextField(blank=True, null=True)  # Opcional
-    fecha = models.DateTimeField(auto_now_add=True)  # Fecha de la reseña
-
-    class Meta:
-        ordering = ['-fecha']  # Más recientes primero
-
+    TIPO_RESEÑA = [
+        ('compra', 'Reseña de Compra'),
+        ('venta', 'Reseña de Vendedor'),
+    ]
+    
+    reseñador = models.ForeignKey(User, on_delete=models.CASCADE)  # Quien deja la reseña
+    reseñado = models.ForeignKey(User, related_name='reseñas_vendedor', on_delete=models.CASCADE)  # Vendedor o comprador que recibe la reseña
+    compra = models.ForeignKey('Compras_M', on_delete=models.CASCADE)  # Relación con la compra
+    calificacion = models.PositiveIntegerField()
+    texto = models.TextField()
+    tipo_reseña = models.CharField(max_length=10, choices=TIPO_RESEÑA)  # Tipo de reseña: compra o venta
+    
     def __str__(self):
-        return f"Reseña de {self.reseñador.username} para {self.reseñado.username}"
+        return f"Reseña de {self.reseñador} para {self.reseñado} - {self.tipo_reseña}"
